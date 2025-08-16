@@ -60,31 +60,35 @@ export function roll(next) {
 // Move function
 export function move(slot, count) {
   return function(state) {
-    const { bar, dice, points, up } = state;
+    const { bar, dice, home, points, up } = state;
     const player = up[0];
     const opponent = opposition(player);
     const direction = directed(player);
     const targetSlot = slot + count * direction;
 
     if (dice.indexOf(count) === -1) {
-      throw new Error(`That die is not available.`);
+      throw new Error(`Invalid move: ${count} is not available in dice [${dice.join(", ")}]`);
     }
 
-    const isBarMove = slot === 24 || slot === -1;
+    const isBarMove = !bounds(slot);
+    const isBearOff = !bounds(targetSlot);
 
     if (isBarMove) {
-      if (bar[player] < 1) throw new Error("No checker is on the bar.");
+      if (bar[player] < 1) throw new Error("Invalid move: a checker must be on the bar.");
     } else {
-      if (points[slot][player] < 1) throw new Error(`No checker exists at point ${slot}.`);
+      if (points[slot][player] < 1) throw new Error(`Invalid move: no checkers on point ${slot}.`);
     }
 
-    const targetPoint = points[targetSlot];
-    if (targetPoint[opponent] > 1) {
-      throw new Error(`That point — ${targetSlot} — is blocked.`);
+    if (!isBearOff) {
+      const targetPoint = points[targetSlot];
+      if (targetPoint[opponent] > 1) {
+        throw new Error(`Invalid move: target point ${targetSlot} is blocked.`);
+      }
     }
 
     const newPoints = [...points];
     const newBar = [...bar];
+    const newHome = [...home];
 
     if (isBarMove) {
       newBar[player]--;
@@ -94,13 +98,17 @@ export function move(slot, count) {
       newPoints[slot] = sourcePoint;
     }
 
-    const newTargetPoint = [...newPoints[targetSlot]];
-    if (newTargetPoint[opponent] === 1) {
-      newTargetPoint[opponent] = 0;
-      newBar[opponent]++;
+    if (isBearOff) {
+      newHome[player]++;
+    } else {
+      const newTargetPoint = [...newPoints[targetSlot]];
+      if (newTargetPoint[opponent] === 1) {
+        newTargetPoint[opponent] = 0;
+        newBar[opponent]++;
+      }
+      newTargetPoint[player]++;
+      newPoints[targetSlot] = newTargetPoint;
     }
-    newTargetPoint[player]++;
-    newPoints[targetSlot] = newTargetPoint;
 
     const newDice = [...dice];
     newDice.splice(dice.indexOf(count), 1);
@@ -108,6 +116,7 @@ export function move(slot, count) {
     return {
       ...state,
       bar: newBar,
+      home: newHome,
       points: newPoints,
       dice: newDice
     };
@@ -140,12 +149,45 @@ function bounds(point){
   return point >= 0 && point < 24;
 }
 
+function canBearOff(state, player) {
+  const { points, bar } = state;
+  if (bar[player] > 0) {
+    return false;
+  }
+  const awayRange = player === WHITE ? _.range(0, 18) : _.range(6, 24);
+  for (const i of awayRange) {
+    if (points[i][player] > 0) {
+      return false; // Found a checker outside the home board
+    }
+  }
+  return true;
+}
+
 export function moves(state) {
   const { bar, points, up, dice } = state;
   const player = up[0];
   const opponent = opposition(player);
   const direction = directed(player);
   const onBar = bar[player] > 0;
+
+  if (canBearOff(state, player)) {
+    const homePoints = player === WHITE ? _.range(18, 24) : _.range(0, 6);
+    return _.mapcat(function(die) {
+      return _.compact(_.map(function(from) {
+        if (points[from][player] > 0) {
+          const to = from + die * direction;
+          if (!bounds(to)) { // Bearing off
+            const highestOccupied = player === WHITE ? _.findLast(p => points[p][player] > 0, homePoints) : _.find(p => points[p][player] > 0, homePoints);
+            if (from === highestOccupied || (player === WHITE ? from + die > 23 : from - die < 0)) {
+               return [from, die];
+            }
+          } else if (points[to][opponent] <= 1) { // Regular move in home
+            return [from, die];
+          }
+        }
+      }, homePoints));
+    }, _.unique(dice));
+  }
 
   return _.mapcat(function(die) {
     return _.compact(_.map(function(from) {

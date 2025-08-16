@@ -2,16 +2,13 @@
 
 - [x] **Fix bug in `moves` function:** The current implementation has a bug where it tries to access `points` with an invalid index when a player is on the bar.
 - [x] **Add validation to `move` command:** An invalid move should throw an exception.
-- [x] **Implement `commit` command:**
-    - [x] This command will signify the end of a player's turn.
-    - [ ] It will switch the seat to the next player.
-    - [ ] It should also clear the dice.
-- [ ] **Enhance `move` function:** Correctly handle hitting a blot by updating the opponent's bar count.
-- [ ] **Update `moves` for bar moves:** Correctly generate moves from the bar, superseding other moves.
-- [ ] **Implement bearing off logic:**
-    - [ ] Add `canBearOff` helper function.
-    - [ ] Update `moves` to generate valid bear-off moves.
-    - [ ] Update `move` to handle moving checkers to the `home` array.
+- [x] **Implement `commit` command:** This command signifies the end of a player's turn, switches the seat, and clears the dice.
+- [x] **Enhance `move` function:** Correctly handles hitting a blot by updating the opponent's bar count.
+- [x] **Update `moves` for bar moves:** Correctly generates moves from the bar, superseding other moves.
+- [x] **Implement bearing off logic:**
+    - [x] Add `canBearOff` helper function.
+    - [x] Update `moves` to generate valid bear-off moves.
+    - [x] Update `move` to handle moving checkers to the `home` array.
 - [ ] **Implement win condition:**
     - [ ] Add `hasWon` helper function.
 - [ ] **Tell the full story in `main.js`:**
