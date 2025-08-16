@@ -141,17 +141,13 @@ If I provide doubles
 you will make the numbers available twice each in the model.
 
 ```js
-{
-  command: [
-    {type: "roll", details: {dice: [2,1]}, seat: 0}, //2 dice, 1..6 each
-    {type: "roll", details: {dice: [3,3,3,3]}, seat: 0}, //if doubles
-    {type: "commit", details: {}, seat: 0},
-    //moves are direction oriented, one player moving from higher to lower and vice versa
-    {type: "move", details: {from: 11, to: 5, die: 6, capture: false}, seat: 0}, //not bearing off
-    {type: "bear-off", details: {from: 23, die: 6}, seat: 0} //bearing off, note null
-    {type: "enter", details: {to: 0, die: 1, capture: false}, seat: 0} //from the bar, from will be just above/below depending on player
-  ]
-}
+  {type: "roll", details: {dice: [2,1]}, seat: 0} //2 dice, 1..6 each
+  {type: "roll", details: {dice: [3,3,3,3]}, seat: 0} //if doubles
+  {type: "commit", details: {}, seat: 0}
+  //moves are direction oriented, one player moving from higher to lower and vice versa
+  {type: "move", details: {from: 11, to: 5, die: 6, capture: false}, seat: 0} //not bearing off
+  {type: "bear-off", details: {from: 23, die: 6}, seat: 0} //bearing off, note null
+  {type: "enter", details: {to: 0, die: 1, capture: false}, seat: 0} //from the bar, from will be just above/below depending on player
 ```
 When the game is unfinished, an no dice are rolled, for things to move forward, one must `roll` the dice.  You'll know that has happened for whichever seat's turn it is, by noting the `rolled` bool. When the roll gets accepted the `dice` will be supplied and `rolled` will be `true`.  When a seat concludes with `commit` the `up` will alternate and rolled set back to `false`.
 
