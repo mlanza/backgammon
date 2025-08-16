@@ -183,10 +183,10 @@ export function moves(state) {
           if (!bounds(to)) { // Bearing off
             const highestOccupied = player === WHITE ? _.findLast(p => points[p][player] > 0, homePoints) : _.find(p => points[p][player] > 0, homePoints);
             if (from === highestOccupied || (player === WHITE ? from + die > 23 : from - die < 0)) {
-               return [from, die];
+               return {type: "move", details: {from, die}};
             }
           } else if (points[to][opponent] <= 1) { // Regular move in home
-            return [from, die];
+            return {type: "move", details: {from, die}};
           }
         }
       }, homePoints));
@@ -199,7 +199,7 @@ export function moves(state) {
       const present = onBar || points[from][player] > 0;
       const open = bounds(to) ? points[to][opponent] <= 1 : false;
       if (present && open) {
-        return [from, die];
+        return {type: "move", details: {from, die}};
       }
     }, onBar ? barEntry(player) : _.range(24)));
   }, _.unique(dice));

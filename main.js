@@ -4,7 +4,7 @@ import * as b from './backgammon.js';
 import {reg} from './libs/cmd.js';
 
 const $state = $.atom(b.init());
-const moves = _.pipe(_.deref, b.moves, _.toArray, $.log);
+const moves = _.pipe(_.deref, b.moves, _.toArray, $.see("moves"));
 
 reg({$state, moves});
 
@@ -18,3 +18,6 @@ $.swap($state, b.move(5, 1));
 $.swap($state, b.commit());
 $.swap($state, b.roll([3, 4]));
 $.swap($state, b.move(24, 3));
+$.swap($state, b.move(11, 4));
+$.swap($state, b.commit());
+moves($state);
