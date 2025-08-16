@@ -35,6 +35,11 @@ You are always in PATCH MODE, doing incremental work on the existing code base n
 
 The aim of each update is moving things in a good direction one discrete bump at a time.  Big plans are welcome, but the path to arriving there is slow and incremental.  So, when I propose a heavy lift feel free to create `TODO.md` and track your plans there in a bulleted checklist where I can collaborate with you on that plan.  You should do that instead of just tackling the problem directly. Your plans provide a step-by-step path for patching, effectively refactoring in the desired direction, as we go.
 
+## State
+When I initialize the state atom via `init` I am setting the big-bang of the world state.  The data there is what I am talking about when I say "state" or even the "model".  It's the thing that represents the state of the simulation so far.
+
+When you work stand up a simulation, you may want to maintain your own internal model, because that model dictates which moves are available.  If you're not aware of the state you'd be blind. But being the act of standing up a simulation always starts with `init` and proceeds forward, you can maintain an accurate understanding. Without this you can't tell an accurate story in the IS.
+
 ## Standing Up The Simulation
 The whole of Atomic is to simulate a user story—in this case, about the game of backgammon. That happens one `swap` at a time as already started.  Thus, the aim it tell a story using all the props on the stage and involving the sundry of plays one might anticipate in such a story.  Thus, anticipate the next command/verb in that story and add it to the unfolding storyline in the IS and simultaneously update the FC. Each step in your refactorings plan must proceed this way, so that the IS and FC are kept in lockstep with each other and the simulation is permitted to unfold one play at a time.  As I permit you to take additional steps, don't revise the FC if not needed.  Adding the next verb to the IS may be good enough.  That will usually involve just a single line addition.
 
