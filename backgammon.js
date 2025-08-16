@@ -123,6 +123,8 @@ export function move(slot, count) {
   };
 }
 
+const enter = move;
+
 export function commit() {
   return function(state) {
     const {up} = state;
@@ -203,7 +205,7 @@ export function moves(state) {
       const open = available(to, opponent, points);
       if (open) {
         const capture = attack(to, opponent, points);
-        return {type: "move", details: {from, to, capture, die}, seat};
+        return {type: "enter", details: {from, to, capture, die}, seat};
       }
     }, barEntry(seat)));
   }, _.unique(dice)) : [];
