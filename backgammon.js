@@ -6,6 +6,10 @@ const BLACK = 1;
 // Initial board setup
 export function init() {
 	return {
+		up: [0],
+    bar: [0, 0],
+		home: [0, 0],
+		dice: [],
 		points: [
 			[2, 0],
 			[0, 0],
@@ -34,11 +38,7 @@ export function init() {
 			[0, 0],
 			[0, 0],
 			[0, 2]
-		],
-		bar: [0, 0],
-		home: [0, 0],
-		up: [0],
-		dice: []
+		]
 	};
 }
 
@@ -60,9 +60,10 @@ export function roll(next) {
 // Move function
 export function move(slot, count) {
   return function(state) {
-    const { dice, points, up } = state;
+    const { bar, dice, points, up } = state;
     const player = up[0];
-    const direction = player === WHITE ? 1 : -1;
+    const opponent = opposition(player);
+    const direction = directed(player);
     const targetSlot = slot + count * direction;
 
     const diceIndex = dice.indexOf(count);
@@ -70,28 +71,37 @@ export function move(slot, count) {
       return state;
     }
 
-    const newPoints = [...points];
-    const sourcePoint = [...newPoints[slot]];
-    const targetPoint = [...newPoints[targetSlot]];
+    const isBarMove = slot === 24 || slot === -1;
 
-    if (sourcePoint[player] < 1) {
-      return state;
+    const newPoints = [...points];
+    const newBar = [...bar];
+
+    if (isBarMove) {
+      if (newBar[player] < 1) return state;
+    } else {
+      if (newPoints[slot][player] < 1) return state;
     }
 
-    const opponent = 1 - player;
+    const targetPoint = [...newPoints[targetSlot]];
     if (targetPoint[opponent] > 1) {
       return state;
     }
 
-    sourcePoint[player]--;
+    if (isBarMove) {
+      newBar[player]--;
+    } else {
+      const sourcePoint = [...newPoints[slot]];
+      sourcePoint[player]--;
+      newPoints[slot] = sourcePoint;
+    }
+
     targetPoint[player]++;
 
     if (targetPoint[opponent] === 1) {
       targetPoint[opponent]--;
-      // state.bar[opponent]++;
+      newBar[opponent]++;
     }
 
-    newPoints[slot] = sourcePoint;
     newPoints[targetSlot] = targetPoint;
 
     const newDice = [...dice];
@@ -99,6 +109,7 @@ export function move(slot, count) {
 
     return {
       ...state,
+      bar: newBar,
       points: newPoints,
       dice: newDice
     };
