@@ -131,6 +131,7 @@ export function commit() {
     return {
       ...state,
       up: [opposition(state.up[0])],
+      rolled: false,
       dice: []
     };
   };
