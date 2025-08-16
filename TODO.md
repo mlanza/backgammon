@@ -1,0 +1,22 @@
+# TODO - Backgammon Simulation
+
+- [ ] **Fix bug in `moves` function:** The current implementation has a bug where it tries to access `points` with an invalid index when a player is on the bar.
+- [ ] **Implement `commit` command:**
+    - [ ] This command will signify the end of a player's turn.
+    - [ ] It will switch the seat to the next player.
+    - [ ] It should also clear the dice.
+- [ ] **Enhance `move` function:** Correctly handle hitting a blot by updating the opponent's bar count.
+- [ ] **Update `moves` for bar moves:** Correctly generate moves from the bar, superseding other moves.
+- [ ] **Implement bearing off logic:**
+    - [ ] Add `canBearOff` helper function.
+    - [ ] Update `moves` to generate valid bear-off moves.
+    - [ ] Update `move` to handle moving checkers to the `home` array.
+- [ ] **Implement win condition:**
+    - [ ] Add `hasWon` helper function.
+- [ ] **Tell the full story in `main.js`:**
+    - [ ] After a player's moves, call `commit`.
+    - [ ] Add a move for the second player that hits a blot.
+    - [ ] Demonstrate a player being forced to enter from the bar.
+    - [ ] Set up a state where a player can bear off.
+    - [ ] Demonstrate a player bearing off.
+    - [ ] Demonstrate a player winning the game.

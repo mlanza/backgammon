@@ -142,7 +142,7 @@ export function moves(state) {
   return _.mapcat(function(die) {
     return _.compact(_.map(function(from) {
       const to = from + die * direction;
-      const present = points[from][player] > 0;
+      const present = onBar || points[from][player] > 0;
       const open = bounds(to) ? points[to][opponent] <= 1 : false;
       if (present && open) {
         return [from, die];
