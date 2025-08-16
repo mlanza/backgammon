@@ -222,7 +222,7 @@ export function moves(state) {
             return {type: "bear-off", details: {from, to: null, die}, seat};
           }
         } else if (points[to][opponent] <= 1) { // Regular move in home
-          return {type: "move", details: {from, to: null, die}, seat};
+          return {type: "move", details: {from, to, die}, seat};
         }
       }
     }, homePoints));
