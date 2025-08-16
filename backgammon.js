@@ -1,6 +1,5 @@
 import _ from './libs/atomic_/core.js';
 
-// Backgammon logic
 const WHITE = 0;
 const BLACK = 1;
 
@@ -8,31 +7,33 @@ const BLACK = 1;
 export function init() {
 	return {
 		points: [
-			[0, 5], // Point 0: 0 white, 5 black
+			[2, 0],
 			[0, 0],
 			[0, 0],
 			[0, 0],
 			[0, 0],
-			[5, 0], // Point 5: 5 white, 0 black
-			[0, 3], // Point 6: 0 white, 3 black
+			[0, 5],
+
+			[0, 0],
+			[0, 3],
 			[0, 0],
 			[0, 0],
 			[0, 0],
-			[0, 5], // Point 10: 0 white, 5 black
-			[5, 0], // Point 11: 5 white, 0 black
-			[5, 0], // Point 12: 5 white, 0 black
+			[5, 0],
+
+			[0, 5],
+			[0, 0],
+			[0, 0],
+			[0, 0],
+			[3, 0],
+			[0, 0],
+
+			[5, 0],
 			[0, 0],
 			[0, 0],
 			[0, 0],
 			[0, 0],
-			[5, 0], // Point 17: 5 white, 0 black
-			[3, 0], // Point 18: 3 white, 0 black
-			[0, 0],
-			[0, 0],
-			[0, 0],
-			[0, 0],
-			[0, 5], // Point 22: 0 white, 5 black
-			[5, 0]  // Point 23: 5 white, 0 black
+			[0, 2]
 		],
 		bar: [0, 0],
 		home: [0, 0],
@@ -104,18 +105,37 @@ export function move(slot, count) {
   };
 }
 
+function barEntry(player){
+  return player === WHITE ? [24] : [-1];
+}
+
+function directed(player) {
+  return player === WHITE ? 1 : -1;
+}
+
+function opposition(player){
+  return player === WHITE ? BLACK : WHITE;
+}
+
+function bounds(point){
+  return point >= 0 && point < 24;
+}
+
 export function moves(state) {
-  const { points, up, dice } = state;
+  const { bar, points, up, dice } = state;
   const player = up[0];
-  const opponent = 1 - player;
-  const direction = player === WHITE ? 1 : -1;
+  const opponent = opposition(player);
+  const direction = directed(player);
+  const onBar = bar[player] > 0;
 
   return _.mapcat(function(die) {
-    return _.compact(_.map(function(point) {
-      const targetSlot = point + die * direction;
-      if (targetSlot >= 0 && targetSlot < 24 && points[point][player] > 0 && points[targetSlot][opponent] <= 1) {
-        return [point, die];
+    return _.compact(_.map(function(from) {
+      const to = from + die * direction;
+      const present = points[from][player] > 0;
+      const open = bounds(to) ? points[to][opponent] <= 1 : false;
+      if (present && open) {
+        return [from, die];
       }
-    }, _.range(24)));
+    }, onBar ? barEntry(player) : _.range(24)));
   }, _.unique(dice));
 }
