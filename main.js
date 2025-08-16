@@ -9,4 +9,6 @@ reg({$state});
 
 $.swap($state, b.roll([5, 6]));
 $.swap($state, b.move(11, 5));
+$.swap($state, b.move(11, 6));
+$.swap($state, b.commit());
 _.chain($state, _.deref, b.moves, _.toArray, $.log);

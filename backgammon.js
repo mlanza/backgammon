@@ -116,6 +116,16 @@ export function move(slot, count) {
   };
 }
 
+export function commit() {
+  return function(state) {
+    return {
+      ...state,
+      up: [opposition(state.up[0])],
+      dice: []
+    };
+  };
+}
+
 function barEntry(player){
   return player === WHITE ? [24] : [-1];
 }
