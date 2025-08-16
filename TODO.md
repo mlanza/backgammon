@@ -9,8 +9,8 @@
     - [x] Add `canBearOff` helper function.
     - [x] Update `moves` to generate valid bear-off moves.
     - [x] Update `move` to handle moving checkers to the `home` array.
-- [ ] **Implement win condition:**
-    - [ ] Add `hasWon` helper function.
+- [x] **Implement win condition:**
+    - [x] Add `hasWon` helper function.
 - [ ] **Tell the full story in `main.js`:**
     - [ ] After a player's moves, call `commit`.
     - [ ] Add a move for the second player that hits a blot.

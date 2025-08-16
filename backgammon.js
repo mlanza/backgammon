@@ -133,6 +133,10 @@ export function commit() {
   };
 }
 
+export function hasWon(state, player) {
+  return state.home[player] === 15;
+}
+
 function barEntry(player){
   return player === WHITE ? [24] : [-1];
 }
