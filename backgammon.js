@@ -187,37 +187,45 @@ export function moves(state) {
     return [{type: "roll", seat}];
   }
 
-  const bearOffMoves = canBearOff(state, seat)
-    ? _.mapcat(function(die) {
-        const homePoints = seat === WHITE ? _.range(18, 24) : _.range(0, 6);
-        return _.compact(_.map(function(from) {
-          if (points[from][seat] > 0) {
-            const to = from + die * direction;
-            if (!bounds(to)) { // Bearing off
-              const highestOccupied = seat === WHITE ? _.findLast(p => points[p][seat] > 0, homePoints) : _.find(p => points[p][seat] > 0, homePoints);
-              if (from === highestOccupied || (seat === WHITE ? from + die > 23 : from - die < 0)) {
-                 return {type: "move", details: {from, die}, seat};
-              }
-            } else if (points[to][opponent] <= 1) { // Regular move in home
-              return {type: "move", details: {from, die}, seat};
-            }
+  const barMoves = onBar ? _.mapcat(function(die) {
+    return _.compact(_.map(function(from) {
+      const to = from + die * direction;
+      const open = bounds(to) ? points[to][opponent] <= 1 : false;
+      if (open) {
+        return {type: "move", details: {from, die}, seat};
+      }
+    }, barEntry(seat)));
+  }, _.unique(dice)) : [];
+
+  const bearOffMoves = canBearOff(state, seat) ? _.mapcat(function(die) {
+    const homePoints = seat === WHITE ? _.range(18, 24) : _.range(0, 6);
+    return _.compact(_.map(function(from) {
+      if (points[from][seat] > 0) {
+        const to = from + die * direction;
+        if (!bounds(to)) { // Bearing off
+          const highestOccupied = seat === WHITE ? _.findLast(p => points[p][seat] > 0, homePoints) : _.find(p => points[p][seat] > 0, homePoints);
+          if (from === highestOccupied || (seat === WHITE ? from + die > 23 : from - die < 0)) {
+            return {type: "move", details: {from, to, die}, seat};
           }
-        }, homePoints));
-      }, _.unique(dice))
-    : [];
+        } else if (points[to][opponent] <= 1) { // Regular move in home
+          return {type: "move", details: {from, to, die}, seat};
+        }
+      }
+    }, homePoints));
+  }, _.unique(dice)) : [];
 
   const regularMoves = _.mapcat(function(die) {
     return _.compact(_.map(function(from) {
       const to = from + die * direction;
-      const present = onBar || points[from][seat] > 0;
+      const present = points[from][seat] > 0; // Simplified: no 'onBar' check here
       const open = bounds(to) ? points[to][opponent] <= 1 : false;
       if (present && open) {
-        return {type: "move", details: {from, die}, seat};
+        return {type: "move", details: {from, to, die}, seat};
       }
-    }, onBar ? barEntry(seat) : _.range(24)));
+    }, _.range(24)));
   }, _.unique(dice));
 
-  const moves = _.concat(bearOffMoves, regularMoves);
+  const moves = onBar ? barMoves : _.concat(bearOffMoves, regularMoves);
   const blocked = _.count(moves) === 0 && pending;
 
   if (blocked || (rolled && !pending)) {
