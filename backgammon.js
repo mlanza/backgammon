@@ -3,7 +3,6 @@ import _ from './libs/atomic_/core.js';
 const WHITE = 0;
 const BLACK = 1;
 
-// Initial board setup
 export function init() {
 	return {
 		up: [0],
@@ -43,7 +42,6 @@ export function init() {
 	};
 }
 
-// Roll dice
 export function roll(next) {
   const rolled = true;
   return function(state) {
@@ -60,7 +58,6 @@ export function roll(next) {
   };
 }
 
-// Move function
 export function move(slot, count) {
   return function(state) {
     const { bar, dice, home, points, up } = state;
@@ -141,27 +138,35 @@ export function hasWon(state, seat) {
   return state.home[seat] === 15;
 }
 
-function barEntry(seat){
+export function barEntry(seat){
   return seat === WHITE ? [24] : [-1];
 }
 
-function directed(seat) {
+export function directed(seat) {
   return seat === WHITE ? 1 : -1;
 }
 
-function opposition(seat){
+export function opposition(seat){
   return seat === WHITE ? BLACK : WHITE;
 }
 
-function bounds(point){
+export function bounds(point){
   return point >= 0 && point < 24;
 }
 
-function home(seat){
+export function home(seat){
   return seat === WHITE ? _.range(18, 24) : _.range(0, 6);
 }
 
-function canBearOff(state, seat) {
+function available(to, opponent, points){
+  return bounds(to) && points[to][opponent] <= 1;
+}
+
+function attack(to, opponent, points){
+  return bounds(to) && points[to][opponent] === 1;
+}
+
+export function canBearOff(state, seat) {
   const { points, bar } = state;
   if (bar[seat] > 0) {
     return false;
@@ -194,9 +199,10 @@ export function moves(state) {
   const barMoves = onBar ? _.mapcat(function(die) {
     return _.compact(_.map(function(from) {
       const to = from + die * direction;
-      const open = bounds(to) ? points[to][opponent] <= 1 : false;
+      const open = available(to, opponent, points);
       if (open) {
-        return {type: "move", details: {from, to, die}, seat};
+        const capture = attack(to, opponent, points);
+        return {type: "move", details: {from, to, capture, die}, seat};
       }
     }, barEntry(seat)));
   }, _.unique(dice)) : [];
@@ -222,9 +228,10 @@ export function moves(state) {
     return _.compact(_.map(function(from) {
       const to = from + die * direction;
       const present = points[from][seat] > 0; // Simplified: no 'onBar' check here
-      const open = bounds(to) ? points[to][opponent] <= 1 : false;
+      const open = available(to, opponent, points);
       if (present && open) {
-        return {type: "move", details: {from, to, die}, seat};
+        const capture = attack(to, opponent, points);
+        return {type: "move", details: {from, to, capture, die}, seat};
       }
     }, _.range(24)));
   }, _.unique(dice));
