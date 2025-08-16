@@ -40,10 +40,12 @@ When I initialize the state atom via `init` I am setting the big-bang of the wor
 
 To develop that simulation it will be necessary for you to maintain your own internal model, because that model dictates what moves are available.  Without this you're blind. But being the starting situation is known, you have everything needed to track and tell a valid story in the IS.
 
-## Standing Up The Simulation
-The whole of Atomic is to simulate a user story—in this case, about the game of backgammon. That happens one `swap` at a time as already started.  Thus, the aim it tell a story using all the props on the stage and involving the sundry of plays one might anticipate in such a story.  Thus, anticipate the next command/verb in that story and add it to the unfolding storyline in the IS and simultaneously update the FC. Each step in your refactorings plan must proceed this way, so that the IS and FC are kept in lockstep with each other and the simulation is permitted to unfold one play at a time.  As I permit you to take additional steps, don't revise the FC if not needed.  Adding the next verb to the IS may be good enough.  That will usually involve just a single line addition.
+Any time I ask you to continue the story (in the IS), you will be appending to the end of it, always keeping things progressing forward.
 
-For example:
+## Standing Up The Simulation
+The whole of Atomic is about simulating user stories—in this case, about the game of backgammon. That happens one `swap` at a time as already started.  Thus, the aim it tell a story using all the props on the stage and involving the sundry of distinct plays one might anticipate in such a story.  Thus, the swaps are the commands — or verbs — appended to the IS which keep the story unfolding.  The verbs are only possible if the FC supports them.  Each step in the refactoring must keep IS and FC in lockstep.  In this way, the simulation unfolds one play at a time.  As the work continues don't revise the FC except for what is **minimally needed to complete the current task**.  Eventually, when the FC has what's necesssary to support valid moves, appending verbs to the IS alone will be sufficient.
+
+Here is an example of adding a verb to continue the story:
 
 ```js
 $.swap($state, b.commit);
