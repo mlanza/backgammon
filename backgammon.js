@@ -10,6 +10,7 @@ export function init() {
     bar: [0, 0],
 		home: [0, 0],
 		dice: [],
+    rolled: false,
 		points: [
 			[2, 0],
 			[0, 0],
@@ -44,6 +45,7 @@ export function init() {
 
 // Roll dice
 export function roll(next) {
+  const rolled = true;
   return function(state) {
     const isValid = next && next.length === 2 && next.every(v => v >= 1 && v <= 6);
     let dice = isValid ? next : [Math.floor(Math.random() * 6) + 1, Math.floor(Math.random() * 6) + 1];
@@ -52,7 +54,8 @@ export function roll(next) {
     }
     return {
       ...state,
-      dice: dice
+      rolled,
+      dice
     };
   };
 }
@@ -168,11 +171,20 @@ function canBearOff(state, seat) {
 }
 
 export function moves(state) {
-  const { bar, points, up, dice } = state;
+  const { bar, rolled, points, up, dice } = state;
   const seat = up[0];
   const opponent = opposition(seat);
   const direction = directed(seat);
   const onBar = bar[seat] > 0;
+  const pending = rolled && _.count(dice) > 0;
+
+  if (hasWon(state, WHITE) || hasWon(state, BLACK)) {
+    return [];
+  }
+
+  if (!rolled) {
+    return [{type: "roll", seat}];
+  }
 
   const bearOffMoves = canBearOff(state, seat)
     ? _.mapcat(function(die) {
@@ -205,9 +217,9 @@ export function moves(state) {
   }, _.unique(dice));
 
   const moves = _.concat(bearOffMoves, regularMoves);
-  const blocked = _.count(moves) === 0 && _.count(dice) > 0;
+  const blocked = _.count(moves) === 0 && pending;
 
-  if (blocked) {
+  if (blocked || (rolled && !pending)) {
     return [{type: "commit", seat}];
   }
 
