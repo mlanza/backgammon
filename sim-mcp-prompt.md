@@ -126,13 +126,19 @@ That means go ahead and apply the update you proposed to the model. I should see
 
 In some situations I may respond with something else.  For example, if I notice a problem, I will explain it.  If things are normal it may just entail my fulfilling the role of the MCP server. For example, if you issue a `roll` command I might respond
 
-> 5 and 6
+> 5,6
 
 to signify those are the dice you rolled. Treat such a reply the same as **go**. That was just me providing the information you needed, since I am feigning the tools you are calling for.
 
 Same as before.  You must still update the model and to keep the simulation going.
 
 The simulation (and your job) ends only when the game concludes.
+
+If I provide doubles
+
+> 2,2
+
+you will make the numbers available twice each in the model.
 
 ```js
 {
