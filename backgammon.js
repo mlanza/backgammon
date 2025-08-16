@@ -157,13 +157,17 @@ function bounds(point){
   return point >= 0 && point < 24;
 }
 
+function home(seat){
+  return seat === WHITE ? _.range(18, 24) : _.range(0, 6);
+}
+
 function canBearOff(state, seat) {
   const { points, bar } = state;
   if (bar[seat] > 0) {
     return false;
   }
-  const awayRange = seat === WHITE ? _.range(0, 18) : _.range(6, 24);
-  for (const i of awayRange) {
+  const homePoints = home(seat);
+  for (const i of homePoints) {
     if (points[i][seat] > 0) {
       return false; // Found a checker outside the home board
     }
@@ -192,23 +196,23 @@ export function moves(state) {
       const to = from + die * direction;
       const open = bounds(to) ? points[to][opponent] <= 1 : false;
       if (open) {
-        return {type: "move", details: {from, die}, seat};
+        return {type: "move", details: {from, to, die}, seat};
       }
     }, barEntry(seat)));
   }, _.unique(dice)) : [];
 
   const bearOffMoves = canBearOff(state, seat) ? _.mapcat(function(die) {
-    const homePoints = seat === WHITE ? _.range(18, 24) : _.range(0, 6);
+    const homePoints = home(seat);
     return _.compact(_.map(function(from) {
       if (points[from][seat] > 0) {
         const to = from + die * direction;
         if (!bounds(to)) { // Bearing off
-          const highestOccupied = seat === WHITE ? _.findLast(p => points[p][seat] > 0, homePoints) : _.find(p => points[p][seat] > 0, homePoints);
+          const highestOccupied = _.detect(p => points[p][seat] > 0, seat === WHITE ? _.reverse(homePoints) : homePoints);
           if (from === highestOccupied || (seat === WHITE ? from + die > 23 : from - die < 0)) {
-            return {type: "move", details: {from, to, die}, seat};
+            return {type: "move", details: {from, to: null, die}, seat};
           }
         } else if (points[to][opponent] <= 1) { // Regular move in home
-          return {type: "move", details: {from, to, die}, seat};
+          return {type: "move", details: {from, to: null, die}, seat};
         }
       }
     }, homePoints));
