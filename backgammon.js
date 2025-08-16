@@ -67,22 +67,22 @@ export function move(slot, count) {
     const targetSlot = slot + count * direction;
 
     if (dice.indexOf(count) === -1) {
-      throw new Error(`Invalid move: ${count} is not available in dice [${dice.join(", ")}]`);
+      throw new Error(`That die is not available.`);
     }
 
     const isBarMove = !bounds(slot);
     const isBearOff = !bounds(targetSlot);
 
     if (isBarMove) {
-      if (bar[player] < 1) throw new Error("Invalid move: a checker must be on the bar.");
+      if (bar[player] < 1) throw new Error("No checker is on the bar.");
     } else {
-      if (points[slot][player] < 1) throw new Error(`Invalid move: no checkers on point ${slot}.`);
+      if (points[slot][player] < 1) throw new Error(`No checker exists at point ${slot}.`);
     }
 
-    if (!isBearOff) {
+    if (!isBearOff){
       const targetPoint = points[targetSlot];
       if (targetPoint[opponent] > 1) {
-        throw new Error(`Invalid move: target point ${targetSlot} is blocked.`);
+        throw new Error(`That point — ${targetSlot} — is blocked.`);
       }
     }
 
