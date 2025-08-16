@@ -142,12 +142,14 @@ The simulation (and your job) ends only when the game concludes.
     {type: "commit", details: {}, seat: 0},
     //moves are direction oriented, one player moving from higher to lower and vice versa
     {type: "move", details: {from: 11, to: 5, die: 6, capture: false}, seat: 0}, //not bearing off
-    {type: "move", details: {from: 23, to: null, die: 6}, seat: 0} //bearing off, note null
-    {type: "move", details: {from: -1, to: 0, die: 1, capture: false}, seat: 0} //from the bar, from will be just above/below depending on player
+    {type: "bear-off", details: {from: 23, die: 6}, seat: 0} //bearing off, note null
+    {type: "enter", details: {to: 0, die: 1, capture: false}, seat: 0} //from the bar, from will be just above/below depending on player
   ]
 }
 ```
 When the game is unfinished, an no dice are rolled, for things to move forward, one must `roll` the dice.  You'll know that has happened for whichever seat's turn it is, by noting the `rolled` bool. When the roll gets accepted the `dice` will be supplied and `rolled` will be `true`.  When a seat concludes with `commit` the `up` will alternate and rolled set back to `false`.
+
+The game is over whenever one seat has all their pieces in home.
 
 ## Model
 
