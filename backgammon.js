@@ -124,6 +124,7 @@ export function move(slot, count) {
 }
 
 const enter = move;
+const bearOff = move;
 
 export function commit() {
   return function(state) {
@@ -218,7 +219,7 @@ export function moves(state) {
         if (!bounds(to)) { // Bearing off
           const highestOccupied = _.detect(p => points[p][seat] > 0, seat === WHITE ? _.reverse(homePoints) : homePoints);
           if (from === highestOccupied || (seat === WHITE ? from + die > 23 : from - die < 0)) {
-            return {type: "move", details: {from, to: null, die}, seat};
+            return {type: "bear-off", details: {from, to: null, die}, seat};
           }
         } else if (points[to][opponent] <= 1) { // Regular move in home
           return {type: "move", details: {from, to: null, die}, seat};
