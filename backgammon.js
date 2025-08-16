@@ -66,26 +66,25 @@ export function move(slot, count) {
     const direction = directed(player);
     const targetSlot = slot + count * direction;
 
-    const diceIndex = dice.indexOf(count);
-    if (diceIndex === -1) {
-      return state;
+    if (dice.indexOf(count) === -1) {
+      throw new Error(`That die is not available.`);
     }
 
     const isBarMove = slot === 24 || slot === -1;
 
+    if (isBarMove) {
+      if (bar[player] < 1) throw new Error("No checker is on the bar.");
+    } else {
+      if (points[slot][player] < 1) throw new Error(`No checker exists at point ${slot}.`);
+    }
+
+    const targetPoint = points[targetSlot];
+    if (targetPoint[opponent] > 1) {
+      throw new Error(`That point — ${targetSlot} — is blocked.`);
+    }
+
     const newPoints = [...points];
     const newBar = [...bar];
-
-    if (isBarMove) {
-      if (newBar[player] < 1) return state;
-    } else {
-      if (newPoints[slot][player] < 1) return state;
-    }
-
-    const targetPoint = [...newPoints[targetSlot]];
-    if (targetPoint[opponent] > 1) {
-      return state;
-    }
 
     if (isBarMove) {
       newBar[player]--;
@@ -95,17 +94,16 @@ export function move(slot, count) {
       newPoints[slot] = sourcePoint;
     }
 
-    targetPoint[player]++;
-
-    if (targetPoint[opponent] === 1) {
-      targetPoint[opponent]--;
+    const newTargetPoint = [...newPoints[targetSlot]];
+    if (newTargetPoint[opponent] === 1) {
+      newTargetPoint[opponent] = 0;
       newBar[opponent]++;
     }
-
-    newPoints[targetSlot] = targetPoint;
+    newTargetPoint[player]++;
+    newPoints[targetSlot] = newTargetPoint;
 
     const newDice = [...dice];
-    newDice.splice(diceIndex, 1);
+    newDice.splice(dice.indexOf(count), 1);
 
     return {
       ...state,
