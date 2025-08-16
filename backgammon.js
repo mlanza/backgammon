@@ -5,11 +5,11 @@ const BLACK = 1;
 
 export function init() {
 	return {
-		up: [0],
-    bar: [0, 0],
-		home: [0, 0],
+		up: 0,
 		dice: [],
     rolled: false,
+    bar: [0, 0],
+		home: [0, 0],
 		points: [
 			[2, 0],
 			[0, 0],
@@ -61,7 +61,7 @@ export function roll(next) {
 export function move(slot, count) {
   return function(state) {
     const { bar, dice, home, points, up } = state;
-    const seat = up[0];
+    const seat = up;
     const opponent = opposition(seat);
     const direction = directed(seat);
     const targetSlot = slot + count * direction;
@@ -125,9 +125,10 @@ export function move(slot, count) {
 
 export function commit() {
   return function(state) {
+    const {up} = state;
     return {
       ...state,
-      up: [opposition(state.up[0])],
+      up: opposition(up),
       rolled: false,
       dice: []
     };
@@ -182,7 +183,7 @@ export function canBearOff(state, seat) {
 
 export function moves(state) {
   const { bar, rolled, points, up, dice } = state;
-  const seat = up[0];
+  const seat = up;
   const opponent = opposition(seat);
   const direction = directed(seat);
   const onBar = bar[seat] > 0;
