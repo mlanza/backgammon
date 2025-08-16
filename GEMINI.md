@@ -1,8 +1,8 @@
 # Backgammon
-A web application for playing backgammon.
+A play-by-web implementation of backgammon.
 
 ## Overview
-* Use the Atomic way to design and maintain the application.  That way is described in docs in its repo (https://github.com/mlanza/atomic).
+* Use the Atomic way to design and maintain the application.  That way is described in https://github.com/mlanza/atomic/README.md and https://github.com/mlanza/atomic/docs.
 * All programs start as simulations.  Initialize the contents of the program's one atom in `main.js`—instantiated with `$.atom`—with `init` from the core module.  That's the first function to be written.  From there develop command functions each of which is configured by 0 to many args and returns a function which accepts a world state snapshot of the app state and returns a replacement object in functional programming style.  In this way, the initial stage of development is deciding what commands are necessary to apply the effects needed to move the app state forward.  All of these commands will be functions added to the core module.
 * If you're aware of the domain being modeled (e.g., Backgammon) feel free to suggest which command to implement next.  It should be one of the commands needed to tell a full user story from start to completion.  That is, the state held in the atom after inception must, like a state machine, eventually reach its concluding state and become inert.
 * Keep to a functional core, imperative shell architecture.  This is neatly divided with the former logic kept in `backgammon.js` and the latter in `main.js`.
@@ -21,6 +21,17 @@ A web application for playing backgammon.
 * `.\libs\atomic_\shell.js`: The effectful module with tools for developing imperative shells.
 * `.\libs\atomic_\dom.js`: The effectful module with tools for interacting with the dom.
 
+## Patch Mode
+Assume you are in PATCH MODE, doing incremental work on the existing code base not starting over.
+
+* Only return unified diffs (git apply compatible).
+* Do not restate unchanged code.
+* Touch at most 2 files and 60 lines.
+* If change exceeds budget, stop and propose a smaller plan.
+
+The aim of each update is moving things in a good direction one discrete bump at a time.  Big plans are welcome, but the path to arriving there must be slow and incremental.  So, if a heavy lift is proposed or needed, create `SCRATCHPAD.md` and track your plans there in a checklist where I can collaborate with you on that plan.  Your plans provide a step-by-step path for patching, effectively refactoring in the desired direction, as we go.
+
 ## Commands
 * Build: `npm run build`
 * Test: `npm run test`
+
