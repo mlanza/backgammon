@@ -61,9 +61,9 @@ export function roll(next) {
 export function move(slot, count) {
   return function(state) {
     const { bar, dice, home, points, up } = state;
-    const player = up[0];
-    const opponent = opposition(player);
-    const direction = directed(player);
+    const seat = up[0];
+    const opponent = opposition(seat);
+    const direction = directed(seat);
     const targetSlot = slot + count * direction;
 
     if (dice.indexOf(count) === -1) {
@@ -74,9 +74,9 @@ export function move(slot, count) {
     const isBearOff = !bounds(targetSlot);
 
     if (isBarMove) {
-      if (bar[player] < 1) throw new Error("No checker is on the bar.");
+      if (bar[seat] < 1) throw new Error("No checker is on the bar.");
     } else {
-      if (points[slot][player] < 1) throw new Error(`No checker exists at point ${slot}.`);
+      if (points[slot][seat] < 1) throw new Error(`No checker exists at point ${slot}.`);
     }
 
     if (!isBearOff){
@@ -91,22 +91,22 @@ export function move(slot, count) {
     const newHome = [...home];
 
     if (isBarMove) {
-      newBar[player]--;
+      newBar[seat]--;
     } else {
       const sourcePoint = [...newPoints[slot]];
-      sourcePoint[player]--;
+      sourcePoint[seat]--;
       newPoints[slot] = sourcePoint;
     }
 
     if (isBearOff) {
-      newHome[player]++;
+      newHome[seat]++;
     } else {
       const newTargetPoint = [...newPoints[targetSlot]];
       if (newTargetPoint[opponent] === 1) {
         newTargetPoint[opponent] = 0;
         newBar[opponent]++;
       }
-      newTargetPoint[player]++;
+      newTargetPoint[seat]++;
       newPoints[targetSlot] = newTargetPoint;
     }
 
@@ -133,34 +133,34 @@ export function commit() {
   };
 }
 
-export function hasWon(state, player) {
-  return state.home[player] === 15;
+export function hasWon(state, seat) {
+  return state.home[seat] === 15;
 }
 
-function barEntry(player){
-  return player === WHITE ? [24] : [-1];
+function barEntry(seat){
+  return seat === WHITE ? [24] : [-1];
 }
 
-function directed(player) {
-  return player === WHITE ? 1 : -1;
+function directed(seat) {
+  return seat === WHITE ? 1 : -1;
 }
 
-function opposition(player){
-  return player === WHITE ? BLACK : WHITE;
+function opposition(seat){
+  return seat === WHITE ? BLACK : WHITE;
 }
 
 function bounds(point){
   return point >= 0 && point < 24;
 }
 
-function canBearOff(state, player) {
+function canBearOff(state, seat) {
   const { points, bar } = state;
-  if (bar[player] > 0) {
+  if (bar[seat] > 0) {
     return false;
   }
-  const awayRange = player === WHITE ? _.range(0, 18) : _.range(6, 24);
+  const awayRange = seat === WHITE ? _.range(0, 18) : _.range(6, 24);
   for (const i of awayRange) {
-    if (points[i][player] > 0) {
+    if (points[i][seat] > 0) {
       return false; // Found a checker outside the home board
     }
   }
@@ -169,24 +169,24 @@ function canBearOff(state, player) {
 
 export function moves(state) {
   const { bar, points, up, dice } = state;
-  const player = up[0];
-  const opponent = opposition(player);
-  const direction = directed(player);
-  const onBar = bar[player] > 0;
+  const seat = up[0];
+  const opponent = opposition(seat);
+  const direction = directed(seat);
+  const onBar = bar[seat] > 0;
 
-  if (canBearOff(state, player)) {
-    const homePoints = player === WHITE ? _.range(18, 24) : _.range(0, 6);
+  if (canBearOff(state, seat)) {
+    const homePoints = seat === WHITE ? _.range(18, 24) : _.range(0, 6);
     return _.mapcat(function(die) {
       return _.compact(_.map(function(from) {
-        if (points[from][player] > 0) {
+        if (points[from][seat] > 0) {
           const to = from + die * direction;
           if (!bounds(to)) { // Bearing off
-            const highestOccupied = player === WHITE ? _.findLast(p => points[p][player] > 0, homePoints) : _.find(p => points[p][player] > 0, homePoints);
-            if (from === highestOccupied || (player === WHITE ? from + die > 23 : from - die < 0)) {
-               return {type: "move", details: {from, die}};
+            const highestOccupied = seat === WHITE ? _.findLast(p => points[p][seat] > 0, homePoints) : _.find(p => points[p][seat] > 0, homePoints);
+            if (from === highestOccupied || (seat === WHITE ? from + die > 23 : from - die < 0)) {
+               return {type: "move", details: {from, die}, seat};
             }
           } else if (points[to][opponent] <= 1) { // Regular move in home
-            return {type: "move", details: {from, die}};
+            return {type: "move", details: {from, die}, seat};
           }
         }
       }, homePoints));
@@ -196,11 +196,11 @@ export function moves(state) {
   return _.mapcat(function(die) {
     return _.compact(_.map(function(from) {
       const to = from + die * direction;
-      const present = onBar || points[from][player] > 0;
+      const present = onBar || points[from][seat] > 0;
       const open = bounds(to) ? points[to][opponent] <= 1 : false;
       if (present && open) {
-        return {type: "move", details: {from, die}};
+        return {type: "move", details: {from, die}, seat};
       }
-    }, onBar ? barEntry(player) : _.range(24)));
+    }, onBar ? barEntry(seat) : _.range(24)));
   }, _.unique(dice));
 }
