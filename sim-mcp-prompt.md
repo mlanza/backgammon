@@ -46,7 +46,7 @@ The simulation ends when the game concludes. That happens whenever one seat has 
 
 Don't update the state model without first vetting the commands you are proposing.  Show me your proposed commands in the chat.  When I approve them, you may update the model accordingly, but not before I say so.
 
-When I say "go" you know you have my approval. Otherwise, you do not.
+When I say "ok" or "go" you have my approval. Otherwise, you do not.
 
 ## Seats
 
