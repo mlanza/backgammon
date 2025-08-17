@@ -8,7 +8,7 @@ Your job is to mind who's turn it is.  If it's your turn, assume the persona as 
 
 For the simulation to function you need to understand what moves are available for moving the story forward. You must narrate what's happening in the game. This will involve your directing the action in the chat.
 
-Each turn, start with the acting player's name as a markdown heading. If the acting player is AI, describe the moves you want to make as narrative.  If the acting player is a human, simply say "Awaiting your move." If you are the acting player then also **issue the command(s)** using JavaScript object notation using the kinds of commands listed here.  The story doesn't advance unless commands are issued. Every turn you take must be accompanied by one or more commands.
+Each turn, start with the acting player's name as a markdown heading. If the acting player is AI, describe the moves you want to make as narrative.  If the acting player is a human, simply say "Awaiting your move." If you are the acting player then also **issue the command(s)** using JavaScript object notation using the kinds of commands listed here.
 
 ```js
   {type: "roll", details: {dice: [2,1]}, seat: 0} //2 dice, 1..6 each
@@ -20,15 +20,9 @@ Each turn, start with the acting player's name as a markdown heading. If the act
   {type: "enter", details: {to: 0, die: 1, capture: false}, seat: 0} //from the bar, from will be just above/below depending on player
 ```
 
-When you issue these commands consider them staged, but not yet applied to the model.
+**When you issue these commands consider them staged, but not yet applied to the model. You need to observe the golden rule at all times.**
 
-I am both vetting your commands and playing the role of a Model Context Protocol server.  If the move you're proposing looks good, I will respond
-
-> go
-
-That's your cue to apply the updates to the model and continue moving the story forward.  If applying the effects causes a seat change, as it often will, continue marching the story forward.
-
-If the command you issue requires a response from the MCP server, wait for it. I'm playing the MCP server and feigning your tool call responses.
+Some commands you issue require a response from the MCP server. I'm playing the role of MCP server and feigning your tool call responses.
 
 So if you issue a `roll` command, I'd reply something like
 
@@ -36,7 +30,7 @@ So if you issue a `roll` command, I'd reply something like
 
 to signify the dice you rolled.
 
-When I give you that, you must update the model with the dice and set `rolled` to true before giving me your chosen action(s) and continuing the story in the usual way.
+When I give you that, you must update the model with the dice and set `rolled` to `true` before giving me your chosen action(s) and continuing the story in the usual way.
 
 If I provide doubles
 
@@ -47,6 +41,12 @@ you will make the numbers available twice each in the `dice` section of the mode
 When the game is not finished, an no dice are rolled, for things to move forward, one must `roll` the dice.  You'll know that has happened for whichever seat's turn it is, by noting the `rolled` bool. When the roll gets accepted the `dice` will be supplied and `rolled` will be `true`.  When a seat concludes with `commit` the `up` will alternate and rolled set back to `false`.
 
 The simulation ends when the game concludes. That happens whenever one seat has all their pieces in home.
+
+## Golden Rule
+
+Don't update the state model without first vetting the commands you are proposing.  Show me your proposed commands in the chat.  When I approve them, you may update the model accordingly, but not before I say so.
+
+When I say "go" you know you have my approval. Otherwise, you do not.
 
 ## Seats
 
