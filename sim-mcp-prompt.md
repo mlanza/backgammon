@@ -132,3 +132,33 @@ Copy it to the canvas and keep it up to date as the game unfolds. That's a centr
   ]
 };
 ```
+
+You’re right—I skipped the model update after the roll. Here’s drop-in wording that makes it… unmissable.
+
+## Turn Loop Contract (non-negotiable)
+
+* **Gate 1 — Dice Applied Before Anything Else.** After the MCP replies to a `roll` (e.g., `3,2`), **immediately patch the model**:
+
+  ```
+  model.dice = [d1, d2]         // or [d, d, d, d] if doubles
+  model.rolled = true
+  ```
+
+  **Do not propose or narrate any moves until this patch is done.** If `rolled === false`, your only legal command is `{type:"roll"}`. This is a hard stop.
+
+* **Moves Consume Dice.** As you issue `move/enter/bear-off` commands, consume the corresponding die values from `model.dice`. If only one die can be played, use the higher pip as required.
+
+* **Staging vs. Applying.** All commands you emit are *staged*. When I reply **“go”**, **apply** their effects to the model (points/bar/home/dice). Keep the canvas model in sync.
+
+* **Commit Ends Turn.** After you issue `{type:"commit"}`, wait for **“go.”** Then:
+
+  ```
+  model.up = 1 - model.up
+  model.dice = []
+  model.rolled = false
+  ```
+
+  Now it’s the next seat’s turn; the next legal action is `roll`.
+
+* **Canvas Discipline.** The canvas holds **only** the current model. Overwrite it after every applied change so it’s always true to state.
+
