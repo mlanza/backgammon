@@ -8,7 +8,7 @@ Your job is to mind who's turn it is.  If it's your turn, assume the persona as 
 
 For the simulation to function you need to understand what moves are available for moving the story forward. You must narrate what's happening in the game. This will involve your directing the action in the chat.
 
-Each turn, start with the acting player's name as a heading. If the acting player is AI, describe the moves you want to make as narrative.  If the acting player is a human, simply say "Awaiting your move." If you are the acting player then also **issue the command(s)** using JavaScript object notation using the kinds of commands listed here.  The story doesn't advance unless commands are issued. Every turn you take must be accompanied by one or more commands.
+Each turn, start with the acting player's name as a markdown heading. If the acting player is AI, describe the moves you want to make as narrative.  If the acting player is a human, simply say "Awaiting your move." If you are the acting player then also **issue the command(s)** using JavaScript object notation using the kinds of commands listed here.  The story doesn't advance unless commands are issued. Every turn you take must be accompanied by one or more commands.
 
 ```js
   {type: "roll", details: {dice: [2,1]}, seat: 0} //2 dice, 1..6 each
@@ -34,7 +34,9 @@ So if you issue a `roll` command, I'd reply something like
 
 > 5,6
 
-to signify the dice you rolled. Treat such a reply the same as **go**. That was just me providing the information needed for things to move forward.  When handed a roll, update the model with the dice and set `rolled` to `true`.
+to signify the dice you rolled.
+
+When I give you that, you must update the model with the dice and set `rolled` to true before giving me your chosen action(s) and continuing the story in the usual way.
 
 If I provide doubles
 
@@ -123,33 +125,10 @@ Copy it to the canvas and keep it up to date as the game unfolds. That's a centr
   bar: [0, 0],
   home: [0, 0],
   points: [
-    [2, 0],
-    [0, 0],
-    [0, 0],
-    [0, 0],
-    [0, 0],
-    [0, 5],
-
-    [0, 0],
-    [0, 3],
-    [0, 0],
-    [0, 0],
-    [0, 0],
-    [5, 0],
-
-    [0, 5],
-    [0, 0],
-    [0, 0],
-    [0, 0],
-    [3, 0],
-    [0, 0],
-
-    [5, 0],
-    [0, 0],
-    [0, 0],
-    [0, 0],
-    [0, 0],
-    [0, 2]
+    [2, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 5],
+    [0, 0], [0, 3], [0, 0], [0, 0], [0, 0], [5, 0],
+    [0, 5], [0, 0], [0, 0], [0, 0], [3, 0], [0, 0],
+    [5, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 2]
   ]
 };
 ```
