@@ -44,9 +44,9 @@ The simulation ends when the game concludes. That happens whenever one seat has 
 
 ## Golden Rule
 
-Don't update the state model without first vetting the commands you are proposing.  Show me your proposed commands in the chat.  When I approve them, you may update the model accordingly, but not before I say so.
+Nothing happens that isn't first vetted as a command in the chat.  That's the proposal, but it has no impact on the model state, yet. You must await my approval. When I say "ok" or "go" you have it; otherwise, you do not.
 
-When I say "ok" or "go" you have my approval. Otherwise, you do not.
+When okayed, apply the command(s) to the model state.  Not before.
 
 ## Seats
 
