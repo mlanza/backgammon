@@ -11,7 +11,7 @@
     - [x] Update `move` to handle moving checkers to the `home` array.
 - [x] **Implement win condition:**
     - [x] Add `hasWon` helper function.
-- [ ] **Implement board verification:** Add a function to ensure each player always has 15 checkers on the board (points, bar, home).
+- [x] **Implement board verification:** Add a function to ensure each player always has 15 checkers on the board (points, bar, home).
 - [x] **Tell the full story in `main.js`:**
     - [x] After a player's moves, call `commit`.
     - [ ] Add a move for the second player that hits a blot.

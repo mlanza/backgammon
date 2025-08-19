@@ -152,7 +152,7 @@ export function home(seat){
   return seat === WHITE ? _.range(18, 24) : _.range(0, 6);
 }
 export function notHome(seat){
-  return seat === WHITE ? _.range(0, 18) : _.range(7, 18);
+  return seat === WHITE ? _.range(0, 18) : _.range(6, 24);
 }
 
 function available(to, opponent, points){
@@ -210,11 +210,19 @@ export function moves(state) {
       if (points[from][seat] > 0) {
         const to = from + die * direction;
         if (!bounds(to)) { // Bearing off
-          const highestOccupied = _.detect(p => points[p][seat] > 0, seat === WHITE ? _.reverse(homePoints) : homePoints);
-          if (from === highestOccupied || (seat === WHITE ? from + die > 23 : from - die < 0)) {
+          const exactFrom = seat === WHITE ? 24 - die : die - 1;
+          if (from === exactFrom) {
             return {type: "bear-off", details: {from, die}, seat};
           }
-        } else if (points[to][opponent] <= 1) { // Regular move in home
+          const higherPoints = seat === WHITE ? _.range(exactFrom + 1, 24) : _.range(0, exactFrom);
+          const hasHigherCheckers = _.some(p => points[p][seat] > 0, higherPoints);
+          if (!hasHigherCheckers) {
+            const highestOccupied = _.detect(p => points[p][seat] > 0, seat === WHITE ? _.reverse(homePoints) : homePoints);
+            if (from === highestOccupied) {
+              return {type: "bear-off", details: {from, die}, seat};
+            }
+          }
+        } else if (available(to, opponent, points)) { // Regular move in home
           return {type: "move", details: {from, to, die}, seat};
         }
       }
