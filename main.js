@@ -31,4 +31,8 @@ $.swap($state, b.move(0, 6));
 $.swap($state, b.move(0, 1));
 $.swap($state, b.commit());
 $.swap($state, b.roll([3, 4]));
+$.swap($state, b.move(7, 3));
+$.swap($state, b.move(5, 4));
+$.swap($state, b.commit());
+$.swap($state, b.roll([1, 1]));
 moves($state);

@@ -1,0 +1,9 @@
+{
+  "tasks": {
+    "dev": "deno run --watch main.ts",
+    "serve": "deno run --allow-net --allow-sys --allow-read https://deno.land/std/http/file_server.ts . -p 8080"
+  },
+  "imports": {
+    "@std/assert": "jsr:@std/assert@1"
+  }
+}

@@ -119,6 +119,19 @@ export function hasWon(state, seat) {
   return state.home[seat] === 15;
 }
 
+export function verify(state) {
+  const { bar, home, points } = state;
+  const whiteCheckers =
+    bar[WHITE] +
+    home[WHITE] +
+    _.reduce((sum, point) => sum + point[WHITE], 0, points);
+  const blackCheckers =
+    bar[BLACK] +
+    home[BLACK] +
+    _.reduce((sum, point) => sum + point[BLACK], 0, points);
+  return whiteCheckers === 15 && blackCheckers === 15;
+}
+
 export function barEntry(seat){
   return seat === WHITE ? [24] : [-1];
 }
