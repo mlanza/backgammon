@@ -151,6 +151,9 @@ export function bounds(point){
 export function home(seat){
   return seat === WHITE ? _.range(18, 24) : _.range(0, 6);
 }
+export function notHome(seat){
+  return seat === WHITE ? _.range(0, 18) : _.range(7, 18);
+}
 
 function available(to, opponent, points){
   return bounds(to) && points[to][opponent] <= 1;
@@ -165,8 +168,8 @@ export function canBearOff(state, seat) {
   if (bar[seat] > 0) {
     return false;
   }
-  const homePoints = home(seat);
-  for (const i of homePoints) {
+  const otherPoints = _.toArray(notHome(seat));
+  for (const i of otherPoints) {
     if (points[i][seat] > 0) {
       return false; // Found a checker outside the home board
     }
@@ -202,7 +205,7 @@ export function moves(state) {
   }, _.unique(dice)) : [];
 
   const bearOffMoves = canBearOff(state, seat) ? _.mapcat(function(die) {
-    const homePoints = home(seat);
+    const homePoints = _.toArray(home(seat));
     return _.compact(_.map(function(from) {
       if (points[from][seat] > 0) {
         const to = from + die * direction;
