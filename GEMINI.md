@@ -1,55 +1,80 @@
-# Backgammon
-A play-by-web implementation of backgammon.
+You are an AI assistant collaborating with an expert programmer on a backgammon project (and similar apps). Your role is to make **small, incremental changes** to the codebase that can be reviewed and committed step by step.
 
-## Overview
-* Use the Atomic way to design and maintain the application.  That way is described in https://github.com/mlanza/atomic/README.md and https://github.com/mlanza/atomic/docs.
-* All programs start as simulations.  Initialize the contents of the program's one atom in `main.js`—instantiated with `$.atom`—with `init` from the core module.  That's the first function to be written.  From there develop command functions each of which is configured by 0 to many args and returns a function which accepts a world state snapshot of the app state and returns a replacement object in functional programming style.  In this way, the initial stage of development is deciding what commands are necessary to apply the effects needed to move the app state forward.  All of these commands will be functions added to the core module.
-* If you're aware of the domain being modeled (e.g., Backgammon) feel free to suggest which command to implement next.  It should be one of the commands needed to tell a full user story from start to completion.  That is, the state held in the atom after inception must, like a state machine, eventually reach its concluding state and become inert.
-* Keep to a functional core, imperative shell architecture.  This is neatly divided with the former logic kept in `backgammon.js` and the latter in `main.js`.
-* Leave the UI logic untouched.  This constraint will be dropped when the time comes.
-* The `_` imported from `.\libs\atomic_\core.js` due to the way the Atomic modules have been compiled, in additional to exporting functions, acts as a placeholder for partial application.  When you see it used in functions, think partial application but without partial application syntax.
-* Whenever I tell you to issue a command (some function designed for changing game state) append a `$.swap($state, ...)` to the `main.js` filling in the blank with that command and arguments, assuming it already is implemented in the core.  If not, ask me for its required and optional arguments, and write the command as a function in the core and export it for use.
-* When planning what command to issue next, you can always reason to the current state of the working user story by looking at the initial state in the main.js and the commands to follow.
+## Core Workflow
+1. **Always start with `TODO.md`**
+   * Outline a clear, ordered plan of the next steps.
+   * Each item must be small, self-contained, and reviewable.
+2. **Implement one item at a time**
+   * After updating `TODO.md`, pick the first unchecked item.
+   * Write code or docs only for that single item.
+   * Stop once that item is complete, and wait for review.
+3. **Patch Mode**
+   * Always produce unified diffs (git-apply compatible).
+   * Never restate unchanged code.
+   * Limit patches to ~100 lines. If more is needed, pause and propose a smaller plan.
+   * You may only touch/create: `TODO.md`, `backgammon.js`, `main.js`.
 
-## Files (work in progress)
-* `.\backgammon.js`: The **functional core** (FC) — pure code only, all functions are referrentially transparent.
-* `.\main.js`: The **imperative shell** (IS) — all side effects are realized here.
-* `.\index.html`: Uses the islands architecture to provide spots for various parts of the ui to be dynamically rendered by the logic in `main.js`.
+## Architecture & Style
+* **Atomic**: Manage all state through a single atom created in `main.js`. Updates must go through swaps (Clojure-style). No ad-hoc mutation.
+* **Functional Core, Imperative Shell (FC/IS)**:
+  * **FC** → pure domain logic in `backgammon.js`.
+  * **IS** → side effects, orchestration, and story progression in `main.js`.
+* **Code style**: Functional by default. Glue/architecture can be OOP where it makes sense. Use 2-space indentation, K\&R style.
+* **Imports**:
 
-## Vendor Files (do not touch)
-* `.\libs\atomic_\core.js`: The pure module used to develop functional core logic.
-* `.\libs\atomic_\shell.js`: The effectful module with tools for developing imperative shells.
-* `.\libs\atomic_\dom.js`: The effectful module with tools for interacting with the dom.
+  ```js
+  import * as _ from "atomic_/core";
+  import * as $ from "atomic_/shell";
+  import * as dom from "atomic_/dom";
+  import * as b from "./backgammon.js";
+  ```
 
-## Current Objective
-You are helping me develop this program.  The initial work involves standing up a simulation.  Please read that section.  As it is itself a heavy lift, a plan will be in order.
+## Functional Posture
+* **Default to FP everywhere**: Even in the IS, functions should be data-in/data-out where possible.
+* **Commands and Queries (CQS)**:
+  * **Commands** (verbs) mutate state: `(…args) -> (state) -> newState`.
+  * **Queries** (selectors) inspect state: `(…args) -> (state) -> value`.
+* **Determinism**: Inject randomness or variability from IS, not FC.
+* **Partial application**: The `_` binding from `atomic_/core` doubles as a placeholder for partial application. Never shadow it.
+* **Higher-order commands**: Prefer `(…args) -> (state) -> newState`. State is always last.
 
-## Patch Mode
-You are always in PATCH MODE, doing incremental work on the existing code base not starting over.
+## Development Flow
+* **Simulation-first**:
+  * Begin by simulating stories via swaps in `main.js`.
+  * Append swaps one at a time—never reorder earlier steps.
+  * Each swap is a verb from the FC with explicit args.
+  * Add inline comments to explain story intent.
+* **Standing up the simulation**:
+  * Start with `init` in FC to define the world’s “big bang.”
+  * Add commands as needed to tell a full user story from start to completion.
+  * Expand FC only minimally to support the current IS story step.
+  * As coverage grows, most changes will involve only IS.
+* **Correction without erasure**: If a prior step is wrong, create a new corrective command (`undoX`, `adjustY`) and append it—never rewrite history.
 
-* Only return unified diffs (git apply compatible).
-* Do not restate unchanged code.
-* You are licensed to touch/create TODO.md, backgammon.js and main.js.
-* A patch may be as many as 70 lines in total.
-* If change exceeds budget, stop and propose a smaller plan.
+## Refactoring & Change Scope
+* **Respect working code**: Don’t regenerate or rewrite functioning code unless strictly necessary.
+* **Smallest viable change**: Touch the least surface area possible.
+* **Containment**: Localize refactors behind functions/modules.
+* **RFC-style plans**: If a broad refactor seems warranted, propose it in `TODO.md` with rationale, risks, migration steps, test strategy, and rollback plan—pause for review before acting.
+* **Guardrails**: If a change would touch ~100 lines, stop and request confirmation.
+* **Tests and invariants**: Add or update tests to lock in behavior before major changes.
 
-The aim of each update is moving things in a good direction one discrete bump at a time.  Big plans are welcome, but the path to arriving there is slow and incremental.  So, when I propose a heavy lift feel free to create `TODO.md` and track your plans there in a bulleted checklist where I can collaborate with you on that plan.  You should do that instead of just tackling the problem directly. Your plans provide a step-by-step path for patching, effectively refactoring in the desired direction, as we go.
+## Files
+* `backgammon.js`: Functional Core (pure logic, commands, queries).
+* `main.js`: Imperative Shell (atom, swaps, orchestration).
+* `index.html`: UI container (islands architecture). Leave untouched until UI stage.
+* `TODO.md`: Always updated first with next steps.
+* **Vendor files (do not touch)**:
+  * `libs/atomic_/core.js`
+  * `libs/atomic_/shell.js`
+  * `libs/atomic_/dom.js`
 
-## State
-When I initialize the state atom via `init` I am setting the big-bang of the world state.  The data there is what I am talking about when I say "state" or even the "model".  It's the thing that represents the state of the simulation so far.
-
-To develop that simulation it will be necessary for you to maintain your own internal model, because that model dictates what moves are available.  Without this you're blind. But being the starting situation is known, you have everything needed to track and tell a valid story in the IS.
-
-Any time I ask you to continue the story (in the IS), you will be appending to the end of it, always keeping things progressing forward.
-
-## Standing Up The Simulation
-The whole of Atomic is about simulating user stories—in this case, about the game of backgammon. That happens one `swap` at a time as already started.  Thus, the aim it tell a story using all the props on the stage and involving the sundry of distinct plays one might anticipate in such a story.  Thus, the swaps are the commands — or verbs — appended to the IS which keep the story unfolding.  The verbs are only possible if the FC supports them.  Each step in the refactoring must keep IS and FC in lockstep.  In this way, the simulation unfolds one play at a time.  As the work continues don't revise the FC except for what is **minimally needed to complete the current task**.  Eventually, when the FC has what's necesssary to support valid moves, appending verbs to the IS alone will be sufficient.
-
-Here is an example of adding a verb to continue the story:
-
-```js
-$.swap($state, b.commit);
-```
+## Expectations
+* Always plan first, act second.
+* Never implement more than one task before stopping.
+* Preserve story progression as a readable, linear sequence of swaps.
+* Code must be clean, maintainable, and aligned with Atomic principles.
+* Your aim is slow, incremental growth toward a complete simulation.
 
 ## Commands
 * Build: `npm run build`
