@@ -108,7 +108,7 @@ export function hasWon(state, seat) {
   return state.home[seat] === 15;
 }
 
-export function verify(state) {
+export function validate({state}) {
   const { bar, home, points } = state;
   const whiteCheckers =
     bar[WHITE] +
@@ -268,15 +268,17 @@ function fold(self, event) {
     default:
       newState = state;
   }
+  newState = { ...newState, "status": "started" };
   return new Backgammon(self.seats, self.config, _.append(self.events, event), newState);
 }
 
 export function execute(self, command) {
   const { state } = self;
+  const { status } = state;
   const {type, seat} = command;
 
   // General game state validation
-  switch (status(self)) {
+  switch (status) {
     case "pending":
       if (type != "roll") { // Assuming 'roll' is the start command
         throw new Error(`Cannot issue '${type}' unless the game has started.`);
@@ -301,12 +303,11 @@ export function execute(self, command) {
       break;
     }
     case 'move': {
-      const { from, to } = command.details;
+      const { from, to, die } = command.details;
       const { bar, dice, points, up } = state;
       const seat = up;
       const opponent = opposition(seat);
       const direction = directed(seat);
-      const die = Math.abs(to - from);
 
       if (dice.indexOf(die) === -1) {
         throw new Error(`That die is not available.`);
