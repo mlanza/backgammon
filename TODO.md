@@ -20,6 +20,11 @@ This plan outlines the next steps to make the simulation more robust and move to
   - The `b.hasWon(state, seat)` function can be used.
   - When the game is over, log a message to the console and stop the simulation.
 
+- [x] **4. Refactor `moves` function signature and filtering:**
+  - Change `moves(self, seats)` to `moves(self, options = {})`.
+  - Implement filtering based on `options.seat` and `options.type`, similar to Mexica and Oh Hell.
+  - Ensure `execute` function filters moves by `type` and `seat` as Mexica does.
+
 - [ ] **5. Stylistic Refinements (based on `meeplitis/src/libs/game.js`):**
   - [x] **a. Remove `export default` for `backgammon` function:**
     - Change `export default function backgammon(...)` to `function backgammon(...)`.

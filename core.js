@@ -169,78 +169,91 @@ export function canBearOff(state, seat) {
   return true;
 }
 
-export function moves(state) {
+export function moves(self, options = {}) {
+  const state = _.deref(self);
   const { bar, rolled, points, up, dice } = state;
-  const seat = up;
-  const opponent = opposition(seat);
-  const direction = directed(seat);
-  const onBar = bar[seat] > 0;
-  const pending = rolled && _.count(dice) > 0;
 
-  if (hasWon(state, WHITE) || hasWon(state, BLACK)) {
-    return [];
-  }
+  const playersToConsider = typeof options.seat === 'number' ? [options.seat] : options.seat || [up];
 
-  if (!rolled) {
-    return [{type: "roll", seat}];
-  }
+  const allGeneratedMoves = _.mapcat(function(seat) { // Iterate over each seat
+    const opponent = opposition(seat);
+    const direction = directed(seat);
+    const onBar = bar[seat] > 0;
+    const pending = rolled && _.count(dice) > 0;
 
-  const barMoves = onBar ? _.mapcat(function(die) {
-    return _.compact(_.map(function(from) {
-      const to = from + die * direction;
-      const open = available(to, opponent, points);
-      if (open) {
-        const capture = attack(to, opponent, points);
-        return {type: "enter", details: {from, to, capture, die}, seat};
-      }
-    }, barEntry(seat)));
-  }, _.unique(dice)) : [];
+    if (hasWon(state, WHITE) || hasWon(state, BLACK)) {
+      return [];
+    }
 
-  const bearOffMoves = canBearOff(state, seat) ? _.mapcat(function(die) {
-    const homePoints = _.toArray(home(seat));
-    return _.compact(_.map(function(from) {
-      if (points[from][seat] > 0) {
+    if (!rolled) {
+      return [{type: "roll", seat}];
+    }
+
+    const barMoves = onBar ? _.mapcat(function(die) {
+      return _.compact(_.map(function(from) {
         const to = from + die * direction;
-        if (!bounds(to)) { // Bearing off
-          const exactFrom = seat === WHITE ? 24 - die : die - 1;
-          if (from === exactFrom) {
-            return {type: "bear-off", details: {from, die}, seat};
-          }
-          const higherPoints = seat === WHITE ? _.range(exactFrom + 1, 24) : _.range(0, exactFrom);
-          const hasHigherCheckers = _.some(p => points[p][seat] > 0, higherPoints);
-          if (!hasHigherCheckers) {
-            const highestOccupied = _.detect(p => points[p][seat] > 0, seat === WHITE ? _.reverse(homePoints) : homePoints);
-            if (from === highestOccupied) {
+        const open = available(to, opponent, points);
+        if (open) {
+          const capture = attack(to, opponent, points);
+          return {type: "enter", details: {from, to, capture, die}, seat};
+        }
+      }, barEntry(seat)));
+    }, _.unique(dice)) : [];
+
+    const bearOffMoves = canBearOff(state, seat) ? _.mapcat(function(die) {
+      const homePoints = _.toArray(home(seat));
+      return _.compact(_.map(function(from) {
+        if (points[from][seat] > 0) {
+          const to = from + die * direction;
+          if (!bounds(to)) { // Bearing off
+            const exactFrom = seat === WHITE ? 24 - die : die - 1;
+            if (from === exactFrom) {
               return {type: "bear-off", details: {from, die}, seat};
             }
+            const higherPoints = seat === WHITE ? _.range(exactFrom + 1, 24) : _.range(0, exactFrom);
+            const hasHigherCheckers = _.some(p => points[p][seat] > 0, higherPoints);
+            if (!hasHigherCheckers) {
+              const highestOccupied = _.detect(p => points[p][seat] > 0, seat === WHITE ? _.reverse(homePoints) : homePoints);
+              if (from === highestOccupied) {
+                return {type: "bear-off", details: {from, die}, seat};
+              }
+            }
+          } else if (available(to, opponent, points)) { // Regular move in home
+            return {type: "move", details: {from, to, die}, seat};
           }
-        } else if (available(to, opponent, points)) { // Regular move in home
-          return {type: "move", details: {from, to, die}, seat};
         }
-      }
-    }, homePoints));
-  }, _.unique(dice)) : [];
+      }, homePoints));
+    }, _.unique(dice)) : [];
 
-  const regularMoves = _.mapcat(function(die) {
-    return _.compact(_.map(function(from) {
-      const to = from + die * direction;
-      const present = points[from][seat] > 0; // Simplified: no 'onBar' check here
-      const open = available(to, opponent, points);
-      if (present && open) {
-        const capture = attack(to, opponent, points);
-        return {type: "move", details: {from, to, capture, die}, seat};
-      }
-    }, _.range(24)));
-  }, _.unique(dice));
+    const regularMoves = _.mapcat(function(die) {
+      return _.compact(_.map(function(from) {
+        const to = from + die * direction;
+        const present = points[from][seat] > 0; // Simplified: no 'onBar' check here
+        const open = available(to, opponent, points);
+        if (present && open) {
+          const capture = attack(to, opponent, points);
+          return {type: "move", details: {from, to, capture, die}, seat};
+        }
+      }, _.range(24)));
+    }, _.unique(dice));
 
-  const moves = onBar ? barMoves : _.concat(bearOffMoves, regularMoves);
-  const blocked = _.count(moves) === 0 && pending;
+    const moves = onBar ? barMoves : _.concat(bearOffMoves, regularMoves);
+    const blocked = _.count(moves) === 0 && pending;
 
-  if (blocked || (rolled && !pending)) {
-    return [{type: "commit", seat}];
+    if (blocked || (rolled && !pending)) {
+      return [{type: "commit", seat}];
+    }
+
+    return moves;
+  }, playersToConsider);
+
+  // Filter by type if options.type is provided
+  if (options.type) {
+    const typesToFilter = typeof options.type === 'string' ? [options.type] : options.type;
+    return _.filtera(move => _.includes(typesToFilter, move.type), allGeneratedMoves);
   }
 
-  return moves;
+  return allGeneratedMoves;
 }
 
 function compact(){
@@ -297,6 +310,20 @@ export function execute(self, command) {
       break;
   }
 
+  const allValidMoves = _.toArray(g.moves(self, {seat, type}));
+
+  function noDetails(command){
+    const {details} = command;
+    return _.eq(details, {}) ? _.dissoc(command, "details") : command;
+  }
+
+  // Check if the current command is among the valid moves for its type
+  const valid = _.detect(_.eq(_, _.chain(command, _.compact, _.dissoc(_, "id"), _.dissocIn(_, ["details", "dice"]), _.dissocIn(_, ["details", "capture"]), noDetails)), allValidMoves);
+
+  if (!valid) {
+    throw new Error(`Invalid command: ${JSON.stringify(command)}`);
+  }
+
   switch (command.type) {
     case 'roll': {
       const dice = command.details.dice || [_.randInt(6), _.randInt(6)];
@@ -307,10 +334,12 @@ export function execute(self, command) {
     case 'move': {
       const { from, to, die } = command.details;
       const { bar, dice, points, up } = state;
-      const seat = up;
+      const seat = up; // This 'seat' is already defined from 'command.seat' above, but keeping for clarity
       const opponent = opposition(seat);
       const direction = directed(seat);
 
+      // These checks are now redundant if 'matched' is true, as 'moves' function already validates them.
+      // However, keeping them for now as they are part of the original logic.
       if (dice.indexOf(die) === -1) {
         throw new Error(`That die is not available.`);
       }
