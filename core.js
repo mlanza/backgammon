@@ -34,7 +34,10 @@ export function init() {
 }
 
 function rolled(state, details) {
-  const { dice } = details;
+  let { dice } = details;
+  if (dice[0] === dice[1]) {
+    dice = [dice[0], dice[0], dice[0], dice[0]];
+  }
   return {
     ...state,
     rolled: true,
