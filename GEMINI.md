@@ -35,6 +35,7 @@ The FC container for a game be it Mexica, Backgammon or Oh Hell, is only mostly 
   ```
 
 ## Functional Posture
+* **Default to FP everywhere**: Even in the IS, functions should be data-in/data-out where possible.
 * **Variable Declarations**: Prefer `const` almost exclusively. Avoid `let` or `var` for reassigning variables within the same function. A strong justification is required for their use (e.g., in 1% of cases).
 * **Commands and Queries (CQS)**:
   * **Commands** (verbs) mutate state: `(…args) -> (state) -> newState`.
