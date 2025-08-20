@@ -297,13 +297,12 @@ export function execute(self, command) {
       break;
   }
 
-  let event;
-
   switch (command.type) {
     case 'roll': {
-      const d = command.details.dice || [_.rand(1, 6), _.rand(1, 6)];
-      event = {type: "rolled", seat: state.up, details: {dice: d}};
-      break;
+      const dice = command.details.dice || [_.randInt(6), _.randInt(6)];
+      return g.fold(self, _.chain(command,
+        _.assoc(_, "type", "rolled"),
+        _.assocIn(_, ["details"], {dice})));
     }
     case 'move': {
       const { from, to, die } = command.details;
@@ -333,19 +332,15 @@ export function execute(self, command) {
           throw new Error(`That point — ${to} — is blocked.`);
         }
       }
-
-      event = { type: 'moved', seat, details: { from, to, die } };
-      break;
+      return g.fold(self, _.assoc(command, "type", "moved"));
     }
     case 'commit': {
-      event = {type: "committed", seat: state.up, details: {}};
-      break;
+      return g.fold(self, _.assoc(command, "type", "committed"));
     }
     default: {
       throw new Error("Unknown command: " + command.type);
     }
   }
-  return fold(self, event);
 }
 
 function perspective(self, seen) {
