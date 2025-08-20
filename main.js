@@ -1,89 +1,50 @@
 import _ from './libs/atomic_/core.js';
 import $ from './libs/atomic_/shell.js';
-import * as b from './backgammon.js';
+import * as b from './core.js';
 import {reg} from './libs/cmd.js';
 
-const $state = $.atom(b.init());
-const moves = _.pipe(_.deref, b.moves, _.toArray, $.see("moves"));
+const $game = $.atom(b.backgammon([0,1]));
+let gameOver = false;
 
-reg({$state, moves, b});
+function verify(state) {
+  if (!b.verify(state)) {
+    console.error("Verification failed", state);
+  }
+}
 
-$.swap($state, b.roll([5, 6]));
-$.swap($state, b.move(11, 5));
-$.swap($state, b.move(16, 6));
-$.swap($state, b.commit());
-$.swap($state, b.roll([6, 6]));
-$.swap($state, b.move(7, 6));
-$.swap($state, b.move(7, 6));
-$.swap($state, b.move(12, 6));
-$.swap($state, b.move(12, 6));
-$.swap($state, b.commit());
-$.swap($state, b.roll([6, 1]));
-$.swap($state, b.move(11, 6));
-$.swap($state, b.move(17, 1));
-$.swap($state, b.commit());
-$.swap($state, b.roll([6, 6]));
-$.swap($state, b.move(7, 6));
-$.swap($state, b.move(12, 6));
-$.swap($state, b.move(12, 6));
-$.swap($state, b.move(12, 6));
-$.swap($state, b.commit());
-$.swap($state, b.roll([3, 3]));
-$.swap($state, b.move(11, 3));
-$.swap($state, b.move(11, 3));
-$.swap($state, b.move(0, 3));
-$.swap($state, b.move(0, 3));
-$.swap($state, b.commit());
-$.swap($state, b.roll([6, 6]));
-$.swap($state, b.move(6, 6));
-$.swap($state, b.move(6, 6));
-$.swap($state, b.move(23, 6));
-$.swap($state, b.move(23, 6));
-$.swap($state, b.commit());
-$.swap($state, b.roll([1, 2]));
-$.swap($state, b.move(3, 1));
-$.swap($state, b.move(16, 2));
-$.swap($state, b.commit());
-$.swap($state, b.roll([5, 5]));
-$.swap($state, b.move(5, 5));
-$.swap($state, b.move(6, 5));
-$.swap($state, b.commit());
-$.swap($state, b.roll([1, 2]));
-$.swap($state, b.move(22, 1));
-$.swap($state, b.move(11, 2));
-$.swap($state, b.commit());
-$.swap($state, b.roll([6, 6]));
-$.swap($state, b.move(17, 6));
-$.swap($state, b.move(17, 6));
-$.swap($state, b.move(11, 6));
-$.swap($state, b.move(11, 6));
-$.swap($state, b.commit());
-$.swap($state, b.roll([1, 2]));
-$.swap($state, b.move(3, 1));
-$.swap($state, b.move(13, 2));
-$.swap($state, b.roll([6, 6]));
-$.swap($state, b.move(4, 6));
-$.swap($state, b.move(4, 6));
-$.swap($state, b.move(10, 6));
-$.swap($state, b.move(10, 6));
-$.swap($state, b.commit());
-$.swap($state, b.roll([1, 2]));
-$.swap($state, b.move(5, 1));
-$.swap($state, b.move(4, 2));
-$.swap($state, b.commit());
-$.swap($state, b.roll([6, 6]));
-$.swap($state, b.move(14, 6));
-$.swap($state, b.move(14, 6));
-$.swap($state, b.move(15, 6));
-$.swap($state, b.move(16, 6));
-$.swap($state, b.commit());
-$.swap($state, b.roll([1, 2]));
-$.swap($state, b.move(1, 1));
-$.swap($state, b.move(2, 2));
-$.swap($state, b.commit());
-$.swap($state, b.roll([6, 6]));
-$.swap($state, b.move(16, 6));
-$.swap($state, b.move(16, 6));
-$.swap($state, b.move(16, 6));
+function exec($game, command) {
+  if (gameOver) {
+    return;
+  }
+  const game = _.deref($game);
 
-moves($state);
+  const event = b.execute(game, command);
+
+  if (event) {
+    $.swap($game, (g) => g.fold(event));
+    const newState = _.deref($game).state;
+    verify(newState);
+    if (b.hasWon(newState, newState.up)) {
+      console.log(`Game over! Player ${newState.up} has won.`);
+      gameOver = true;
+    }
+  }
+}
+
+const moves = _.pipe(_.deref, (g) => b.moves(g.state), _.toArray, $.see("moves"));
+reg({$game, moves, b, exec});
+
+exec($game, {type: 'roll', seat: 0, details: {dice: [5, 6]}});
+exec($game, {type: 'move', seat: 0, details: {from: 11, to: 6}});
+exec($game, {type: 'move', seat: 0, details: {from: 16, to: 10}});
+exec($game, {type: 'commit', seat: 0, details: {}});
+exec($game, {type: 'roll', seat: 1, details: {dice: [6, 6]}});
+exec($game, {type: 'move', seat: 1, details: {from: 7, to: 13}});
+exec($game, {type: 'move', seat: 1, details: {from: 7, to: 13}});
+exec($game, {type: 'move', seat: 1, details: {from: 12, to: 18}});
+exec($game, {type: 'move', seat: 1, details: {from: 12, to: 18}});
+exec($game, {type: 'commit', seat: 1, details: {}});
+exec($game, {type: 'roll', seat: 0, details: {dice: [6, 1]}});
+exec($game, {type: 'move', seat: 0, details: {from: 11, to: 5}});
+exec($game, {type: 'move', seat: 0, details: {from: 17, to: 16}});
+exec($game, {type: 'commit', seat: 0, details: {}});

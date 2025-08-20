@@ -1,0 +1,381 @@
+import _ from './libs/atomic_/core.js';
+import g from './libs/game_.js';
+
+const WHITE = 0;
+const BLACK = 1;
+
+export function Backgammon(seats, config, events, state){
+  this.seats = seats;
+  this.config = config;
+  this.events = events;
+  this.state = state;
+}
+
+export function backgammon(seats, config, events, state){
+  const self = new Backgammon(_.toArray(seats), config, [], state || init());
+  return _.reduce(fold, self, events);
+}
+
+export function init() {
+	return {
+		up: 0,
+		dice: [],
+    rolled: false,
+    bar: [0, 0],
+		home: [0, 0],
+    status: "pending",
+		points: [
+			[2, 0], [0, 0], [0, 0],	[0, 0],	[0, 0],	[0, 5],
+			[0, 0],	[0, 3],	[0, 0],	[0, 0],	[0, 0],	[5, 0],
+			[0, 5],	[0, 0],	[0, 0],	[0, 0],	[3, 0],	[0, 0],
+			[5, 0],	[0, 0],	[0, 0],	[0, 0],	[0, 0],	[0, 2]
+		]
+	};
+}
+
+function rolled(state, details) {
+  const { dice } = details;
+  return {
+    ...state,
+    rolled: true,
+    dice
+  };
+}
+
+function moved(state, details) {
+  const { from, die } = details;
+  let { to } = details;
+  const { bar, dice, home, points, up } = state;
+  const seat = up;
+  const opponent = opposition(seat);
+  const direction = directed(seat);
+
+  if (to == null) {
+    to = from + die * direction;
+  }
+
+  const newPoints = [...points];
+  const newBar = [...bar];
+  const newHome = [...home];
+
+  const isBarMove = !bounds(from);
+  const isBearOff = !bounds(to);
+
+  if (isBarMove) {
+    newBar[seat]--;
+  } else {
+    const sourcePoint = [...newPoints[from]];
+    sourcePoint[seat]--;
+    newPoints[from] = sourcePoint;
+  }
+
+  if (isBearOff) {
+    newHome[seat]++;
+  } else {
+    const newTargetPoint = [...newPoints[to]];
+    if (newTargetPoint[opponent] === 1) {
+      newTargetPoint[opponent] = 0;
+      newBar[opponent]++;
+    }
+    newTargetPoint[seat]++;
+    newPoints[to] = newTargetPoint;
+  }
+
+  const newDice = [...dice];
+  newDice.splice(dice.indexOf(die), 1);
+
+  return {
+    ...state,
+    bar: newBar,
+    home: newHome,
+    points: newPoints,
+    dice: newDice
+  };
+}
+
+function committed(state) {
+  const { up } = state;
+  return {
+    ...state,
+    up: opposition(up),
+    rolled: false,
+    dice: [],
+    status: "started"
+  };
+}
+
+export function hasWon(state, seat) {
+  return state.home[seat] === 15;
+}
+
+export function verify(state) {
+  const { bar, home, points } = state;
+  const whiteCheckers =
+    bar[WHITE] +
+    home[WHITE] +
+    _.reduce((sum, point) => sum + point[WHITE], 0, points);
+  const blackCheckers =
+    bar[BLACK] +
+    home[BLACK] +
+    _.reduce((sum, point) => sum + point[BLACK], 0, points);
+  return whiteCheckers === 15 && blackCheckers === 15;
+}
+
+export function barEntry(seat){
+  return seat === WHITE ? [24] : [-1];
+}
+
+export function directed(seat) {
+  return seat === WHITE ? 1 : -1;
+}
+
+export function opposition(seat){
+  return seat === WHITE ? BLACK : WHITE;
+}
+
+export function bounds(point){
+  return point >= 0 && point < 24;
+}
+
+export function home(seat){
+  return seat === WHITE ? _.range(18, 24) : _.range(0, 6);
+}
+export function notHome(seat){
+  return seat === WHITE ? _.range(0, 18) : _.range(6, 24);
+}
+
+function available(to, opponent, points){
+  return bounds(to) && points[to][opponent] <= 1;
+}
+
+function attack(to, opponent, points){
+  return bounds(to) && points[to][opponent] === 1;
+}
+
+export function canBearOff(state, seat) {
+  const { points, bar } = state;
+  if (bar[seat] > 0) {
+    return false;
+  }
+  const otherPoints = _.toArray(notHome(seat));
+  for (const i of otherPoints) {
+    if (points[i][seat] > 0) {
+      return false; // Found a checker outside the home board
+    }
+  }
+  return true;
+}
+
+export function moves(state) {
+  const { bar, rolled, points, up, dice } = state;
+  const seat = up;
+  const opponent = opposition(seat);
+  const direction = directed(seat);
+  const onBar = bar[seat] > 0;
+  const pending = rolled && _.count(dice) > 0;
+
+  if (hasWon(state, WHITE) || hasWon(state, BLACK)) {
+    return [];
+  }
+
+  if (!rolled) {
+    return [{type: "roll", seat}];
+  }
+
+  const barMoves = onBar ? _.mapcat(function(die) {
+    return _.compact(_.map(function(from) {
+      const to = from + die * direction;
+      const open = available(to, opponent, points);
+      if (open) {
+        const capture = attack(to, opponent, points);
+        return {type: "enter", details: {from, to, capture, die}, seat};
+      }
+    }, barEntry(seat)));
+  }, _.unique(dice)) : [];
+
+  const bearOffMoves = canBearOff(state, seat) ? _.mapcat(function(die) {
+    const homePoints = _.toArray(home(seat));
+    return _.compact(_.map(function(from) {
+      if (points[from][seat] > 0) {
+        const to = from + die * direction;
+        if (!bounds(to)) { // Bearing off
+          const exactFrom = seat === WHITE ? 24 - die : die - 1;
+          if (from === exactFrom) {
+            return {type: "bear-off", details: {from, die}, seat};
+          }
+          const higherPoints = seat === WHITE ? _.range(exactFrom + 1, 24) : _.range(0, exactFrom);
+          const hasHigherCheckers = _.some(p => points[p][seat] > 0, higherPoints);
+          if (!hasHigherCheckers) {
+            const highestOccupied = _.detect(p => points[p][seat] > 0, seat === WHITE ? _.reverse(homePoints) : homePoints);
+            if (from === highestOccupied) {
+              return {type: "bear-off", details: {from, die}, seat};
+            }
+          }
+        } else if (available(to, opponent, points)) { // Regular move in home
+          return {type: "move", details: {from, to, die}, seat};
+        }
+      }
+    }, homePoints));
+  }, _.unique(dice)) : [];
+
+  const regularMoves = _.mapcat(function(die) {
+    return _.compact(_.map(function(from) {
+      const to = from + die * direction;
+      const present = points[from][seat] > 0; // Simplified: no 'onBar' check here
+      const open = available(to, opponent, points);
+      if (present && open) {
+        const capture = attack(to, opponent, points);
+        return {type: "move", details: {from, to, capture, die}, seat};
+      }
+    }, _.range(24)));
+  }, _.unique(dice));
+
+  const moves = onBar ? barMoves : _.concat(bearOffMoves, regularMoves);
+  const blocked = _.count(moves) === 0 && pending;
+
+  if (blocked || (rolled && !pending)) {
+    return [{type: "commit", seat}];
+  }
+
+  return moves;
+}
+
+function compact(){
+
+}
+
+function append(){
+
+}
+
+function fmap(){
+
+}
+
+function fold(state, event) {
+  switch (event.type) {
+    case "rolled":
+      return rolled(state, event.details);
+    case "moved":
+      return moved(state, event.details);
+    case "committed":
+      return committed(state);
+    default:
+      return state;
+  }
+}
+
+export function execute(self, command) {
+  const { state } = self;
+  const {type, seat} = command;
+
+  // General game state validation
+  switch (status(self)) {
+    case "pending":
+      if (type != "roll") { // Assuming 'roll' is the start command
+        throw new Error(`Cannot issue '${type}' unless the game has started.`);
+      }
+      break;
+    case "started":
+      if (type == "roll" && state.rolled) { // Cannot roll dice again if already rolled
+        throw new Error(`Cannot roll dice again.`);
+      }
+      break;
+    case "finished":
+      throw new Error(`Cannot issue commands once the game is finished.`);
+      break;
+  }
+
+  let event;
+
+  switch (command.type) {
+    case 'roll': {
+      const d = command.details.dice || [_.rand(1, 6), _.rand(1, 6)];
+      event = {type: "rolled", seat: state.up, details: {dice: d}};
+      break;
+    }
+    case 'move': {
+      const { from, to } = command.details;
+      const { bar, dice, points, up } = state;
+      const seat = up;
+      const opponent = opposition(seat);
+      const direction = directed(seat);
+      const die = Math.abs(to - from);
+
+      if (dice.indexOf(die) === -1) {
+        throw new Error(`That die is not available.`);
+      }
+
+      const isBarMove = !bounds(from);
+      if (isBarMove) {
+        if (bar[seat] < 1) {
+          throw new Error("No checker is on the bar.");
+        }
+      } else {
+        if (points[from][seat] < 1) {
+          throw new Error(`No checker exists at point ${from}.`);
+        }
+      }
+
+      if (bounds(to)) {
+        const targetPoint = points[to];
+        if (targetPoint[opponent] > 1) {
+          throw new Error(`That point — ${to} — is blocked.`);
+        }
+      }
+
+      event = { type: 'moved', seat, details: { from, to, die } };
+      break;
+    }
+    case 'commit': {
+      event = {type: "committed", seat: state.up, details: {}};
+      break;
+    }
+    default: {
+      throw new Error("Unknown command: " + command.type);
+    }
+  }
+  return event;
+}
+
+function perspective(self, seen) {
+  return self.state;
+}
+
+function up(state) {
+  return state.up;
+}
+
+function may(state, command) {
+  return true;
+}
+
+function metrics(state, seat) {
+  return {};
+}
+
+function comparator(s1, s2) {
+  return 0;
+}
+
+function textualizer(event) {
+  return "";
+}
+
+function status(self) {
+  const { state } = self;
+  if (hasWon(state, WHITE) || hasWon(state, BLACK)) {
+    return "finished";
+  } else if (state.status === "pending" && state.dice.length === 0 && state.bar[WHITE] === 0 && state.bar[BLACK] === 0 && state.home[WHITE] === 0 && state.home[BLACK] === 0) {
+    return "pending";
+  } else {
+    return "started";
+  }
+}
+
+_.doto(Backgammon,
+  g.behave,
+  _.implement(_.ICompactible, {compact}),
+  _.implement(_.IAppendable, {append}),
+  _.implement(_.IFunctor, {fmap}),
+  _.implement(g.IGame, {perspective, up, may, moves, metrics, comparator, textualizer, fold, status}));

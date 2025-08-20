@@ -12,12 +12,15 @@ You are an AI assistant collaborating with an expert programmer on a backgammon 
    * Always produce unified diffs (git-apply compatible).
    * Never restate unchanged code.
    * Limit patches to ~100 lines. If more is needed, pause and propose a smaller plan.
-   * You may only touch/create: `TODO.md`, `backgammon.js`, `main.js`.
+   * You may only touch/create: `TODO.md`, `core.js`, `main.js`.
+
+## One of Several Games As Seen on Meeplitis
+We are implementing a board game. The model for this implementation can be found in ../meeplitis.  Study it.  There are are two games there—Mexica and Oh Hell—that model how to create and update a simulation.  That is the pattern we are following, although we are only focusing on the core, the part without the UI.  There is no UI at this point.
 
 ## Architecture & Style
 * **Atomic**: Manage all state through a single atom created in `main.js`. Updates must go through swaps (Clojure-style). No ad-hoc mutation.
 * **Functional Core, Imperative Shell (FC/IS)**:
-  * **FC** → pure domain logic in `backgammon.js`.
+  * **FC** → pure domain logic in `core.js`.
   * **IS** → side effects, orchestration, and story progression in `main.js`.
 * **Code style**: Functional by default. Glue/architecture can be OOP where it makes sense. Use 2-space indentation, K\&R style.
 * **Imports**:
@@ -26,7 +29,7 @@ You are an AI assistant collaborating with an expert programmer on a backgammon 
   import * as _ from "atomic_/core";
   import * as $ from "atomic_/shell";
   import * as dom from "atomic_/dom";
-  import * as b from "./backgammon.js";
+  import * as b from "./core.js";
   ```
 
 ## Functional Posture
