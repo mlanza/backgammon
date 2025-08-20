@@ -18,14 +18,13 @@ function exec($game, command) {
   }
   const game = _.deref($game);
 
-  const event = b.execute(game, command);
+  const newGame = b.execute(game, command);
 
-  if (event) {
-    $.swap($game, (g) => g.fold(event));
-    const newState = _.deref($game).state;
-    verify(newState);
-    if (b.hasWon(newState, newState.up)) {
-      console.log(`Game over! Player ${newState.up} has won.`);
+  if (newGame) {
+    $.swap($game, (g) => newGame);
+    verify(newGame.state);
+    if (b.hasWon(newGame.state, newGame.state.up)) {
+      console.log(`Game over! Player ${newGame.state.up} has won.`);
       gameOver = true;
     }
   }

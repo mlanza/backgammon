@@ -17,6 +17,8 @@ You are an AI assistant collaborating with an expert programmer on a backgammon 
 ## One of Several Games As Seen on Meeplitis
 We are implementing a board game. The model for this implementation can be found in ../meeplitis.  Study it.  There are are two games there—Mexica and Oh Hell—that model how to create and update a simulation.  That is the pattern we are following, although we are only focusing on the core, the part without the UI.  There is no UI at this point.
 
+The FC container for a game be it Mexica, Backgammon or Oh Hell, is only mostly pure.  It is not actually 100% pure.  Thus, the overarching desire is to do what Mexica and Oh Hell do.  Their way is correct and takes priority over other rules.
+
 ## Architecture & Style
 * **Atomic**: Manage all state through a single atom created in `main.js`. Updates must go through swaps (Clojure-style). No ad-hoc mutation.
 * **Functional Core, Imperative Shell (FC/IS)**:

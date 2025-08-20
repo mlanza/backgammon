@@ -252,17 +252,23 @@ function fmap(){
 
 }
 
-function fold(state, event) {
+function fold(self, event) {
+  const state = self.state;
+  let newState;
   switch (event.type) {
     case "rolled":
-      return rolled(state, event.details);
+      newState = rolled(state, event.details);
+      break;
     case "moved":
-      return moved(state, event.details);
+      newState = moved(state, event.details);
+      break;
     case "committed":
-      return committed(state);
+      newState = committed(state);
+      break;
     default:
-      return state;
+      newState = state;
   }
+  return new Backgammon(self.seats, self.config, _.append(self.events, event), newState);
 }
 
 export function execute(self, command) {
@@ -335,7 +341,7 @@ export function execute(self, command) {
       throw new Error("Unknown command: " + command.type);
     }
   }
-  return event;
+  return fold(self, event);
 }
 
 function perspective(self, seen) {

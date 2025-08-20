@@ -29,3 +29,7 @@ This plan outlines the next steps to make the simulation more robust and move to
     - Ensure internal helper functions are not exported. (Already largely consistent, but a final check).
   - [x] **c. Consider `commands` object structure:**
     - Note that `game.js` handles command types directly within `execute` rather than using a separate `commands` object. (No immediate change, but a point for future discussion/refactoring if desired by the user).
+
+- [x] **6. Reconcile `execute`/`fold` to return modified game object:**
+  - Ensure `fold` returns a new `Backgammon` object with updated state and events.
+  - Ensure `execute` returns a new `Backgammon` object after applying the command.
