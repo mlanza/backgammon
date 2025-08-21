@@ -40,6 +40,7 @@ function rolled(state, details) {
   }
   return {
     ...state,
+    status: "started",
     rolled: true,
     dice
   };
@@ -281,11 +282,6 @@ function noDetails(command){
   return _.eq(details, {}) ? _.dissoc(command, "details") : command;
 }
 
-function doubled(dice){
-  const [a, b] = dice;
-  return a === b ? [a, a, a, a] : dice;
-}
-
 const validDie = _.includes(_.range(1, 7), _);
 
 export function execute(self, command) {
@@ -319,7 +315,7 @@ export function execute(self, command) {
 
   switch (command.type) {
     case 'roll': {
-      const dice = doubled(command.details.dice || [_.randInt(6), _.randInt(6)]);
+      const dice = command.details.dice || [_.randInt(6), _.randInt(6)];
       const [a, b] = dice;
       if (!validDie(a) || !validDie(b)) {
         throw new Error("Invalid dice");
@@ -377,24 +373,18 @@ export function execute(self, command) {
 }
 
 function fold(self, event) {
-  const state = self.state;
-  let newState;
+  const state = _.deref(self);
   switch (event.type) {
     case "rolled":
-      newState = rolled(state, event.details);
-      break;
+      return g.fold(self, event, state => rolled(state, event.details));
     case "entered":
     case "moved":
-      newState = moved(state, event.details);
-      break;
+      return g.fold(self, event, state => moved(state, event.details))
     case "committed":
-      newState = committed(state);
-      break;
+      return g.fold(self, event, state => committed(state, event.details))
     default:
-      newState = state;
+      return self;
   }
-  newState = { ...newState, "status": "started" };
-  return new Backgammon(self.seats, self.config, _.append(self.events, event), newState);
 }
 
 function perspective(self, seen) {
@@ -419,6 +409,10 @@ function textualizer(event) {
   return "";
 }
 
+function undoable(){
+  return true;
+}
+
 function status(self) {
   const { state } = self;
   if (hasWon(state, WHITE) || hasWon(state, BLACK)) {
@@ -435,4 +429,4 @@ _.doto(Backgammon,
   _.implement(_.ICompactible, {compact}),
   _.implement(_.IAppendable, {append}),
   _.implement(_.IFunctor, {fmap}),
-  _.implement(g.IGame, {perspective, up, may, moves, metrics, comparator, textualizer, fold, status}));
+  _.implement(g.IGame, {perspective, up, may, moves, undoable, metrics, comparator, textualizer, fold, status}));

@@ -5,8 +5,6 @@ import {reg} from './libs/cmd.js';
 
 const $game = $.atom(b.backgammon([0,1]), {validate: b.validate});
 
-$.sub($game, $.see("game"));
-
 function exec($game, command) {
   $.swap($game, (g) => b.execute(g, command));
 }
