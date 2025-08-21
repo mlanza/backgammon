@@ -48,7 +48,7 @@ function rolled(state, details) {
 
 function moved(state, details) {
   const { from, die } = details;
-  const { to } = details;
+  let { to } = details;
   const { bar, dice, home, points, up } = state;
   const seat = up;
   const opponent = opposition(seat);
