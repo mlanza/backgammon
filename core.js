@@ -274,6 +274,7 @@ function fold(self, event) {
     case "rolled":
       newState = rolled(state, event.details);
       break;
+    case "entered":
     case "moved":
       newState = moved(state, event.details);
       break;
