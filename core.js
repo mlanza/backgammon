@@ -302,6 +302,13 @@ function noDetails(command){
   return _.eq(details, {}) ? _.dissoc(command, "details") : command;
 }
 
+function doubled(dice){
+  const [a, b] = dice;
+  return a === b ? [a, a, a, a] : dice;
+}
+
+const validDie = _.includes(_.range(1, 7), _);
+
 export function execute(self, command) {
   const { state } = self;
   const { status } = state;
@@ -333,7 +340,11 @@ export function execute(self, command) {
 
   switch (command.type) {
     case 'roll': {
-      const dice = command.details.dice || [_.randInt(6), _.randInt(6)];
+      const dice = doubled(command.details.dice || [_.randInt(6), _.randInt(6)]);
+      const [a, b] = dice;
+      if (!validDie(a) || !validDie(b)) {
+        throw new Error("Invalid dice");
+      }
       return g.fold(self,
         _.chain(command,
           _.assoc(_, "type", "rolled"),
