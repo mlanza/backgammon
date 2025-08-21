@@ -126,7 +126,7 @@ export function validate({state}) {
 }
 
 export function barEntry(seat){
-  return seat === WHITE ? [24] : [-1];
+  return seat === WHITE ? [-1] : [24];
 }
 
 export function directed(seat) {
