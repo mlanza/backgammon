@@ -368,7 +368,7 @@ export function execute(self, command) {
       const capture = attack(to, opponent, points);
       return g.fold(self,
         _.chain(command,
-          _.assoc(_, "type", "moved"),
+          _.assoc(_, "type", type == "move" ? "moved" : "entered"),
           _.assocIn(_, ["details", "capture"], capture)));
     }
     case 'commit': {
