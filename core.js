@@ -22,7 +22,7 @@ export function init() {
 		dice: [],
     rolled: false,
     bar: [0, 0],
-		innerBoard: [0, 0],
+		off: [0, 0],
     status: "pending",
 		points: [
 			[2, 0], [0, 0], [0, 0],	[0, 0],	[0, 0],	[0, 5],
@@ -49,7 +49,7 @@ function rolled(state, details) {
 function moved(state, details) {
   const { from, die } = details;
   let { to } = details;
-  const { bar, dice, innerBoard, points, up } = state;
+  const { bar, dice, off, points, up } = state;
   const seat = up;
   const opponent = opposition(seat);
   const direction = directed(seat);
@@ -60,7 +60,7 @@ function moved(state, details) {
 
   const newPoints = [...points];
   const newBar = [...bar];
-  const newHome = [...innerBoard];
+  const newOff = [...off];
 
   const isBarMove = !bounds(from);
   const isBearOff = !bounds(to);
@@ -91,7 +91,7 @@ function moved(state, details) {
   return {
     ...state,
     bar: newBar,
-    innerBoard: newHome,
+    off: newOff,
     points: newPoints,
     dice: newDice
   };
@@ -109,18 +109,18 @@ function committed(state) {
 }
 
 export function hasWon(state, seat) {
-  return state.innerBoard[seat] === 15;
+  return state.off[seat] === 15;
 }
 
 export function validate({state}) {
-  const { bar, innerBoard, points } = state;
+  const { bar, off, points } = state;
   const whiteCheckers =
     bar[WHITE] +
-    innerBoard[WHITE] +
+    off[WHITE] +
     _.reduce((sum, point) => sum + point[WHITE], 0, points);
   const blackCheckers =
     bar[BLACK] +
-    innerBoard[BLACK] +
+    off[BLACK] +
     _.reduce((sum, point) => sum + point[BLACK], 0, points);
   return whiteCheckers === 15 && blackCheckers === 15;
 }
@@ -198,7 +198,7 @@ export function moves(self, options = {}) {
     }, _.unique(dice)) : [];
 
     const bearOffMoves = canBearOff(state, seat) ? _.mapcat(function(die) {
-      const homePoints = _.toArray(innerBoard(seat));
+      const inner = _.toArray(innerBoard(seat));
       return _.compact(_.map(function(from) {
         if (points[from][seat] > 0) {
           const to = from + die * direction;
@@ -219,7 +219,7 @@ export function moves(self, options = {}) {
             return {type: "move", details: {from, to, die}, seat};
           }
         }
-      }, homePoints));
+      }, inner));
     }, _.unique(dice)) : [];
 
     const regularMoves = _.mapcat(function(die) {
