@@ -20,14 +20,7 @@ You are an AI assistant collaborating with an expert programmer on a backgammon 
 We are implementing the functional core (FC).  That means we are not even beginning to look at the UI at this point.
 
 ## Meeplitis Games
-We are implementing a board game. The model for this implementation can be found in
-`../meeplitis`
-
-Study this implementation.  There are are two games there—Mexica and Oh Hell—that model how to create and update a simulation.
-
-The `core.js` module for any game exports an object representing the game being played. The implementation is mostly functional.  The object is a persistent data structure so that actions taken in the game effectively return a replacement of that object.  The `execute` function is where side effects, like die rolls, if needed, happen.  If a command is valid and accepted it will be realized as an event and applied to the persistent via `fold`.  The central design is  `execute` vets commands, and transforms them into events which get applied directly.  In this way, new commands can be vetted and the story can be extended.  Alternately, one can replay the events cleanly.
-
-Thus, the core, AKA the FC, is mostly pure.  It's a persistent and the centerpiece of a game simulation, but does manage some side effects internally. All games, Mexica and Oh Hell included, are this way.  So you can see how they do what they do and learn from them.
+We are implementing a board game, the model for which can be found in `../meeplitis`. Your job is to understand and use its architecture as described in `MEEPLITIS.md`.
 
 ## Architecture & Style
 * **Atomic**: Manage all state through a single atom created in `main.js`. Updates must go through swaps (Clojure-style). No ad-hoc mutation.
