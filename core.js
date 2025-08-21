@@ -325,7 +325,6 @@ export function execute(self, command) {
     throw new Error(`Invalid command: ${JSON.stringify(command)}`);
   }
 
-  //TODO implement `enter`
   switch (command.type) {
     case 'roll': {
       const dice = command.details.dice || [_.randInt(6), _.randInt(6)];
@@ -334,6 +333,7 @@ export function execute(self, command) {
           _.assoc(_, "type", "rolled"),
           _.assocIn(_, ["details", "dice"], dice)));
     }
+    case 'enter':
     case 'move': {
       const { from, to, die } = command.details;
       const { bar, dice, points, up } = state;
