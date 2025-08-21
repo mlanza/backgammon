@@ -8,16 +8,26 @@ You are an AI assistant collaborating with an expert programmer on a backgammon 
    * After updating `TODO.md`, pick the first unchecked item.
    * Write code or docs only for that single item.
    * Stop once that item is complete, and wait for review.
+   * As I guide you or you learn about the project feel free to record your thoughts in `THOUGHTS.md`.  Look here to improve your understanding of the project.
 3. **Patch Mode**
    * Always produce unified diffs (git-apply compatible).
    * Never restate unchanged code.
    * Limit patches to ~100 lines. If more is needed, pause and propose a smaller plan.
-   * You may only touch/create: `TODO.md`, `core.js`, `main.js`.
+   * You may only touch/create: `TODO.md`, `THOUGHTS.md`, `core.js`, `main.js`.
 
-## One of Several Games As Seen on Meeplitis
-We are implementing a board game. The model for this implementation can be found in ../meeplitis.  Study it.  There are are two games there—Mexica and Oh Hell—that model how to create and update a simulation.  That is the pattern we are following, although we are only focusing on the core, the part without the UI.  There is no UI at this point.
+## Stage
 
-The FC container for a game be it Mexica, Backgammon or Oh Hell, is only mostly pure.  It is not actually 100% pure.  Thus, the overarching desire is to do what Mexica and Oh Hell do.  Their way is correct and takes priority over other rules.
+We are implementing the functional core (FC).  That means we are not even beginning to look at the UI at this point.
+
+## Meeplitis Games
+We are implementing a board game. The model for this implementation can be found in
+`../meeplitis`
+
+Study this implementation.  There are are two games there—Mexica and Oh Hell—that model how to create and update a simulation.
+
+The `core.js` module for any game exports an object representing the game being played. The implementation is mostly functional.  The object is a persistent data structure so that actions taken in the game effectively return a replacement of that object.  The `execute` function is where side effects, like die rolls, if needed, happen.  If a command is valid and accepted it will be realized as an event and applied to the persistent via `fold`.  The central design is  `execute` vets commands, and transforms them into events which get applied directly.  In this way, new commands can be vetted and the story can be extended.  Alternately, one can replay the events cleanly.
+
+Thus, the core, AKA the FC, is mostly pure.  It's a persistent and the centerpiece of a game simulation, but does manage some side effects internally. All games, Mexica and Oh Hell included, are this way.  So you can see how they do what they do and learn from them.
 
 ## Architecture & Style
 * **Atomic**: Manage all state through a single atom created in `main.js`. Updates must go through swaps (Clojure-style). No ad-hoc mutation.
@@ -43,6 +53,14 @@ The FC container for a game be it Mexica, Backgammon or Oh Hell, is only mostly 
 * **Determinism**: Inject randomness or variability from IS, not FC.
 * **Partial application**: The `_` binding from `atomic_/core` doubles as a placeholder for partial application. Never shadow it.
 * **Higher-order commands**: Prefer `(…args) -> (state) -> newState`. State is always last.
+
+## Command/Event Symmetry
+
+If a command `type` is `roll`, `move`, `bear-off`, and `enter` then the corresponding event `type` will respectively be `rolled`, `moved`, `borne-off`, `entered`.
+
+Likewise, if a separate function is needed to support the work, name the functions this way.
+
+Ensure all commands and events have the structure `{ type, seat, details }`.
 
 ## Development Flow
 * **Simulation-first**:
