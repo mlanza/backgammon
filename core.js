@@ -22,7 +22,7 @@ export function init() {
 		dice: [],
     rolled: false,
     bar: [0, 0],
-		home: [0, 0],
+		innerBoard: [0, 0],
     status: "pending",
 		points: [
 			[2, 0], [0, 0], [0, 0],	[0, 0],	[0, 0],	[0, 5],
@@ -49,7 +49,7 @@ function rolled(state, details) {
 function moved(state, details) {
   const { from, die } = details;
   let { to } = details;
-  const { bar, dice, home, points, up } = state;
+  const { bar, dice, innerBoard, points, up } = state;
   const seat = up;
   const opponent = opposition(seat);
   const direction = directed(seat);
@@ -60,7 +60,7 @@ function moved(state, details) {
 
   const newPoints = [...points];
   const newBar = [...bar];
-  const newHome = [...home];
+  const newHome = [...innerBoard];
 
   const isBarMove = !bounds(from);
   const isBearOff = !bounds(to);
@@ -91,7 +91,7 @@ function moved(state, details) {
   return {
     ...state,
     bar: newBar,
-    home: newHome,
+    innerBoard: newHome,
     points: newPoints,
     dice: newDice
   };
@@ -109,18 +109,18 @@ function committed(state) {
 }
 
 export function hasWon(state, seat) {
-  return state.home[seat] === 15;
+  return state.innerBoard[seat] === 15;
 }
 
 export function validate({state}) {
-  const { bar, home, points } = state;
+  const { bar, innerBoard, points } = state;
   const whiteCheckers =
     bar[WHITE] +
-    home[WHITE] +
+    innerBoard[WHITE] +
     _.reduce((sum, point) => sum + point[WHITE], 0, points);
   const blackCheckers =
     bar[BLACK] +
-    home[BLACK] +
+    innerBoard[BLACK] +
     _.reduce((sum, point) => sum + point[BLACK], 0, points);
   return whiteCheckers === 15 && blackCheckers === 15;
 }
@@ -141,10 +141,10 @@ export function bounds(point){
   return point >= 0 && point < 24;
 }
 
-export function home(seat){
+export function innerBoard(seat){
   return seat === WHITE ? _.range(18, 24) : _.range(0, 6);
 }
-export function notHome(seat){
+export function outerBoard(seat){
   return seat === WHITE ? _.range(0, 18) : _.range(6, 24);
 }
 
@@ -161,10 +161,10 @@ export function canBearOff(state, seat) {
   if (bar[seat] > 0) {
     return false;
   }
-  const otherPoints = _.toArray(notHome(seat));
+  const otherPoints = _.toArray(outerBoard(seat));
   for (const i of otherPoints) {
     if (points[i][seat] > 0) {
-      return false; // Found a checker outside the home board
+      return false; // Found a checker outside the innerBoard board
     }
   }
   return true;
@@ -202,7 +202,7 @@ export function moves(self, options = {}) {
     }, _.unique(dice)) : [];
 
     const bearOffMoves = canBearOff(state, seat) ? _.mapcat(function(die) {
-      const homePoints = _.toArray(home(seat));
+      const homePoints = _.toArray(innerBoard(seat));
       return _.compact(_.map(function(from) {
         if (points[from][seat] > 0) {
           const to = from + die * direction;
@@ -219,7 +219,7 @@ export function moves(self, options = {}) {
                 return {type: "bear-off", details: {from, die}, seat};
               }
             }
-          } else if (available(to, opponent, points)) { // Regular move in home
+          } else if (available(to, opponent, points)) { // Regular move in innerBoard
             return {type: "move", details: {from, to, die}, seat};
           }
         }
@@ -417,7 +417,7 @@ function status(self) {
   const { state } = self;
   if (hasWon(state, WHITE) || hasWon(state, BLACK)) {
     return "finished";
-  } else if (state.status === "pending" && state.dice.length === 0 && state.bar[WHITE] === 0 && state.bar[BLACK] === 0 && state.home[WHITE] === 0 && state.home[BLACK] === 0) {
+  } else if (state.status === "pending" && state.dice.length === 0 && state.bar[WHITE] === 0 && state.bar[BLACK] === 0 && state.innerBoard[WHITE] === 0 && state.innerBoard[BLACK] === 0) {
     return "pending";
   } else {
     return "started";
