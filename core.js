@@ -194,8 +194,8 @@ export function moves(self, options = {}) {
         const to = from + die * direction;
         const open = available(to, opponent, points);
         if (open) {
-          const capture = attack(to, opponent, points);
-          return {type: "enter", details: {from, to, capture, die}, seat};
+          //const capture = attack(to, opponent, points);
+          return {type: "enter", details: {from, to, die}, seat};
         }
       }, barEntry(seat)));
     }, _.unique(dice)) : [];
@@ -231,8 +231,7 @@ export function moves(self, options = {}) {
         const present = points[from][seat] > 0; // Simplified: no 'onBar' check here
         const open = available(to, opponent, points);
         if (present && open) {
-          const capture = attack(to, opponent, points);
-          return {type: "move", details: {from, to, capture, die}, seat};
+          return {type: "move", details: {from, to, die}, seat};
         }
       }, _.range(24)));
     }, _.unique(dice));
@@ -288,6 +287,11 @@ function fold(self, event) {
   return new Backgammon(self.seats, self.config, _.append(self.events, event), newState);
 }
 
+function noDetails(command){
+  const {details} = command;
+  return _.eq(details, {}) ? _.dissoc(command, "details") : command;
+}
+
 export function execute(self, command) {
   const { state } = self;
   const { status } = state;
@@ -312,24 +316,23 @@ export function execute(self, command) {
 
   const allValidMoves = _.toArray(g.moves(self, {seat, type}));
 
-  function noDetails(command){
-    const {details} = command;
-    return _.eq(details, {}) ? _.dissoc(command, "details") : command;
-  }
+  const cmd = _.chain(command, _.compact, _.dissoc(_, "id"), _.dissocIn(_, ["details", "dice"]), noDetails);
 
   // Check if the current command is among the valid moves for its type
-  const valid = _.detect(_.eq(_, _.chain(command, _.compact, _.dissoc(_, "id"), _.dissocIn(_, ["details", "dice"]), _.dissocIn(_, ["details", "capture"]), noDetails)), allValidMoves);
+  const valid = _.detect(_.eq(_, cmd), allValidMoves);
 
   if (!valid) {
     throw new Error(`Invalid command: ${JSON.stringify(command)}`);
   }
 
+  //TODO implement `enter`
   switch (command.type) {
     case 'roll': {
       const dice = command.details.dice || [_.randInt(6), _.randInt(6)];
-      return g.fold(self, _.chain(command,
-        _.assoc(_, "type", "rolled"),
-        _.assocIn(_, ["details"], {dice})));
+      return g.fold(self,
+        _.chain(command,
+          _.assoc(_, "type", "rolled"),
+          _.assocIn(_, ["details", "dice"], dice)));
     }
     case 'move': {
       const { from, to, die } = command.details;
@@ -361,7 +364,12 @@ export function execute(self, command) {
           throw new Error(`That point — ${to} — is blocked.`);
         }
       }
-      return g.fold(self, _.assoc(command, "type", "moved"));
+
+      const capture = attack(to, opponent, points);
+      return g.fold(self,
+        _.chain(command,
+          _.assoc(_, "type", "moved"),
+          _.assocIn(_, ["details", "capture"], capture)));
     }
     case 'commit': {
       return g.fold(self, _.assoc(command, "type", "committed"));

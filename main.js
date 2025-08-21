@@ -15,9 +15,6 @@ const moves = _.pipe(_.deref, (g) => b.moves(g.state), _.toArray, $.see("moves")
 reg({$game, moves, b, exec});
 
 exec($game, {type: 'roll', seat: 0, details: {dice: [5, 6]}});
-exec($game, {type: 'move', seat: 0, details: {from: 11, to: 6, die: 5}});
-exec($game, {type: 'move', seat: 0, details: {from: 16, to: 10, die: 6}});
-exec($game, {type: 'commit', seat: 0, details: {}});
-exec($game, {type: 'roll', seat: 1, details: {dice: [6, 6]}});
-exec($game, {type: 'move', seat: 1, details: {from: 7, to: 13, die: 6}});
-exec($game, {type: 'move', seat: 1, details: {from: 7, to: 13, die: 6}});
+exec($game, {type: 'move', seat: 0, details: {from: 11, to: 16, die: 5}});
+exec($game, {type: 'move', seat: 0, details: {from: 0, to: 6, die: 6}});
+exec($game, {type: 'commit', seat: 0});
