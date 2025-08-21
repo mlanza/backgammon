@@ -19,11 +19,11 @@ export function backgammon(seats, config = {}, events = [], state = null){
 export function init() {
 	return {
 		up: 0,
+    status: "pending",
 		dice: [],
     rolled: false,
     bar: [0, 0],
 		off: [0, 0],
-    status: "pending",
 		points: [
 			[2, 0], [0, 0], [0, 0],	[0, 0],	[0, 0],	[0, 5],
 			[0, 0],	[0, 3],	[0, 0],	[0, 0],	[0, 0],	[5, 0],
