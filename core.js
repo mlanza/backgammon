@@ -276,27 +276,6 @@ function fmap(self, f){
     f(self.state));
 }
 
-function fold(self, event) {
-  const state = self.state;
-  let newState;
-  switch (event.type) {
-    case "rolled":
-      newState = rolled(state, event.details);
-      break;
-    case "entered":
-    case "moved":
-      newState = moved(state, event.details);
-      break;
-    case "committed":
-      newState = committed(state);
-      break;
-    default:
-      newState = state;
-  }
-  newState = { ...newState, "status": "started" };
-  return new Backgammon(self.seats, self.config, _.append(self.events, event), newState);
-}
-
 function noDetails(command){
   const {details} = command;
   return _.eq(details, {}) ? _.dissoc(command, "details") : command;
@@ -395,6 +374,27 @@ export function execute(self, command) {
       throw new Error("Unknown command: " + command.type);
     }
   }
+}
+
+function fold(self, event) {
+  const state = self.state;
+  let newState;
+  switch (event.type) {
+    case "rolled":
+      newState = rolled(state, event.details);
+      break;
+    case "entered":
+    case "moved":
+      newState = moved(state, event.details);
+      break;
+    case "committed":
+      newState = committed(state);
+      break;
+    default:
+      newState = state;
+  }
+  newState = { ...newState, "status": "started" };
+  return new Backgammon(self.seats, self.config, _.append(self.events, event), newState);
 }
 
 function perspective(self, seen) {
