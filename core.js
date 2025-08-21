@@ -161,13 +161,9 @@ export function canBearOff(state, seat) {
   if (bar[seat] > 0) {
     return false;
   }
-  const otherPoints = _.toArray(outerBoard(seat));
-  for (const i of otherPoints) {
-    if (points[i][seat] > 0) {
-      return false; // Found a checker outside the innerBoard board
-    }
-  }
-  return true;
+  return !_.detect(function(i){
+    return points[i][seat] > 0;
+  }, outerBoard(seat));
 }
 
 export function moves(self, options = {}) {
