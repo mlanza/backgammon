@@ -11,7 +11,7 @@ export function Backgammon(seats, config, events, state){
   this.state = state;
 }
 
-export function backgammon(seats, config, events, state){
+export function backgammon(seats, config = {}, events = [], state = null){
   const self = new Backgammon(_.toArray(seats), config, [], state || init());
   return _.reduce(fold, self, events);
 }
