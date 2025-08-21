@@ -255,16 +255,25 @@ export function moves(self, options = {}) {
   return allGeneratedMoves;
 }
 
-function compact(){
-
+function compact(self){
+  return new Backgammon(self.seats,
+    self.config,
+    [],
+    self.state);
 }
 
-function append(){
-
+function append(self, event){
+  return new Backgammon(self.seats,
+    self.config,
+    _.append(self.events, event),
+    self.state);
 }
 
-function fmap(){
-
+function fmap(self, f){
+  return new Backgammon(self.seats,
+    self.config,
+    self.events,
+    f(self.state));
 }
 
 function fold(self, event) {
@@ -296,9 +305,8 @@ function noDetails(command){
 export function execute(self, command) {
   const { state } = self;
   const { status } = state;
-  const {type, seat} = command;
+  const { type, seat } = command;
 
-  // General game state validation
   switch (status) {
     case "pending":
       if (type != "roll") { // Assuming 'roll' is the start command
@@ -319,10 +327,7 @@ export function execute(self, command) {
 
   const cmd = _.chain(command, _.compact, _.dissoc(_, "id"), _.dissocIn(_, ["details", "dice"]), noDetails);
 
-  // Check if the current command is among the valid moves for its type
-  const valid = _.detect(_.eq(_, cmd), allValidMoves);
-
-  if (!valid) {
+  if (!_.detect(_.eq(_, cmd), allValidMoves)) {
     throw new Error(`Invalid command: ${JSON.stringify(command)}`);
   }
 
@@ -386,12 +391,10 @@ function perspective(self, seen) {
 }
 
 function up(state) {
-  return state.up;
+  return [state.up];
 }
 
-function may(state, command) {
-  return true;
-}
+const may = up;
 
 function metrics(state, seat) {
   return {};
