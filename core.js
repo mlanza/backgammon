@@ -323,7 +323,7 @@ export function execute(self, command) {
       break;
   }
 
-  const allValidMoves = _.toArray(g.moves(self, {seat, type}));
+  const allValidMoves = g.moves(self, {seat, type});
 
   const cmd = _.chain(command, _.compact, _.dissoc(_, "id"), _.dissocIn(_, ["details", "dice"]), noDetails);
 
