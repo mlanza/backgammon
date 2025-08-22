@@ -193,6 +193,12 @@ export function moves(self, options = {}) {
       return [];
     }
 
+    if (state.status === "double-proposed") {
+      const canAccept = seat === up;
+      const acceptMove = canAccept ? [{type: "accept", seat}] : [];
+      return acceptMove;
+    }
+
     if (!rolled) {
       const canDouble = _.has(state, "holdsCube") && stakes < 64 && (holdsCube === -1 || holdsCube === seat);
       const doubleMove = canDouble ? [{type: "propose-double", seat}] : [];
