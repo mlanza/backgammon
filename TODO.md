@@ -13,7 +13,7 @@ This plan outlines the steps to implement the doubling cube feature as specified
 - [x] **Accept:** Implement the `accept` command in `execute` and the corresponding `accepted` event in `fold`.
 
 ## Phase 3: Forfeit
-- [ ] **Available Moves:** Update `moves` to show `forfeit` as a valid move.
+- [x] **Available Moves:** Update `moves` to show `forfeit` as a valid move.
 - [ ] **Forfeit:** Implement the `forfeit` command in `execute` and the corresponding `forfeited` event in `fold`.
 
 ## Phase 4: Validation and Game Outcome

@@ -204,9 +204,9 @@ export function moves(self, options = {}) {
     }
 
     if (state.status === "double-proposed") {
-      const canAccept = seat === up;
-      const acceptMove = canAccept ? [{type: "accept", seat}] : [];
-      return acceptMove;
+      const canRespond = seat === up;
+      const responseMoves = canRespond ? [{type: "accept", seat}, {type: "forfeit", seat}] : [];
+      return responseMoves;
     }
 
     if (!rolled) {
