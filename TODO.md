@@ -14,7 +14,7 @@ This plan outlines the steps to implement the doubling cube feature as specified
 
 ## Phase 3: Forfeit
 - [x] **Available Moves:** Update `moves` to show `forfeit` as a valid move.
-- [ ] **Forfeit:** Implement the `forfeit` command in `execute` and the corresponding `forfeited` event in `fold`.
+- [x] **Forfeit:** Implement the `forfeit` command in `execute` and the corresponding `forfeited` event in `fold`.
 
 ## Phase 4: Validation and Game Outcome
 - [ ] **Validation:** Add validation logic to `execute` to enforce all preconditions and rules for the new commands as described in the PRD.

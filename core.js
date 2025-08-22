@@ -129,6 +129,16 @@ function accepted(state, details) {
   };
 }
 
+function forfeited(state, details) {
+  const { seat } = details;
+  const winner = opposition(seat);
+  return {
+    ...state,
+    status: "finished",
+    winner: winner
+  };
+}
+
 export function hasWon(state, seat) {
   return state.off[seat] === 15;
 }
@@ -397,6 +407,9 @@ export function execute(self, command) {
     case 'accept': {
       return g.fold(self, _.assoc(command, "type", "accepted"));
     }
+    case 'forfeit': {
+      return g.fold(self, _.assoc(command, "type", "forfeited"));
+    }
     default: {
       throw new Error("Unknown command: " + command.type);
     }
@@ -417,6 +430,8 @@ function fold(self, event) {
       return g.fold(self, event, state => doubleProposed(state, event.details))
     case "accepted":
       return g.fold(self, event, state => accepted(state, event.details))
+    case "forfeited":
+      return g.fold(self, event, state => forfeited(state, event.details))
     default:
       return self;
   }
