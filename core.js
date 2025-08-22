@@ -394,6 +394,8 @@ function fold(self, event) {
       return g.fold(self, event, state => moved(state, event.details))
     case "committed":
       return g.fold(self, event, state => committed(state, event.details))
+    case "double-proposed":
+      return g.fold(self, event, state => doubleProposed(state, event.details))
     default:
       return self;
   }

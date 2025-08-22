@@ -6,7 +6,7 @@ This plan outlines the steps to implement the doubling cube feature as specified
 
 ## Phase 1: Propose Double
 - [x] **Available Moves:** Update `moves` to show `propose-double` as a valid move.
-- [ ] **Propose Double:** Implement the `propose-double` command in `execute` and the corresponding `double-proposed` event in `fold`.
+- [x] **Propose Double:** Implement the `propose-double` command in `execute` and the corresponding `double-proposed` event in `fold`.
 
 ## Phase 2: Accept
 - [ ] **Available Moves:** Update `moves` to show `accept` as a valid move.
