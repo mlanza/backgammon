@@ -220,7 +220,7 @@ export function moves(self, options = {}) {
     }
 
     if (!rolled) {
-      const canDouble = _.has(state, "holdsCube") && stakes < 64 && (holdsCube === -1 || holdsCube === seat);
+      const canDouble = stakes < 64 && (holdsCube === -1 || holdsCube === seat);
       const doubleMove = canDouble ? [{type: "propose-double", seat}] : [];
       return _.concat([{type: "roll", seat}], doubleMove);
     }
