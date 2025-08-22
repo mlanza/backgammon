@@ -12,13 +12,15 @@ export function Backgammon(seats, config, events, state){
 }
 
 export function backgammon(seats, config = {}, events = [], state = null){
-  const self = new Backgammon(_.toArray(seats), config, [], state || init());
+  const {raiseStakes = false} = config;
+  const self = new Backgammon(_.toArray(seats), config, [], state || init(raiseStakes));
   return _.reduce(fold, self, events);
 }
 
-export function init() {
-	return {
+export function init(raiseStakes) {
+	return _.merge({
 		up: 0,
+    stakes: 1,
     status: "pending",
 		dice: [],
     rolled: false,
@@ -30,7 +32,7 @@ export function init() {
 			[0, 5],	[0, 0],	[0, 0],	[0, 0],	[3, 0],	[0, 0],
 			[5, 0],	[0, 0],	[0, 0],	[0, 0],	[0, 0],	[0, 2]
 		]
-	};
+	}, raiseStakes ? {holdsCube: null} : {});
 }
 
 function rolled(state, details) {

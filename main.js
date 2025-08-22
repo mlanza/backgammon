@@ -3,7 +3,7 @@ import $ from './libs/atomic_/shell.js';
 import * as b from './core.js';
 import {reg} from './libs/cmd.js';
 
-const $game = $.atom(b.backgammon([0,1]), {validate: b.validate});
+const $game = $.atom(b.backgammon([0,1], {raiseStakes: true}), {validate: b.validate});
 
 function exec($game, command) {
   $.swap($game, (g) => b.execute(g, command));
