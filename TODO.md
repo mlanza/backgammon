@@ -18,4 +18,4 @@ This plan outlines the steps to implement the doubling cube feature as specified
 
 ## Phase 4: Validation and Game Outcome
 - [x] **Validation:** Add validation logic to `execute` to enforce all preconditions and rules for the new commands as described in the PRD.
-- [ ] **Game Outcome:** Ensure that a `forfeit` correctly ends the game and assigns a winner.
+- [x] **Refactor Validation:** Consolidate validation logic in `execute` to avoid redundant checks and improve clarity.

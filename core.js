@@ -326,36 +326,18 @@ export function execute(self, command) {
 
   switch (status) {
     case "pending":
-      if (type != "roll" && type != "propose-double") {
-        throw new Error(`Command not allowed in current status`);
+      if (type != "roll") { // Assuming 'roll' is the start command
+        throw new Error(`Cannot issue '${type}' unless the game has started.`);
       }
       break;
     case "started":
-      if (type == "roll" && state.rolled) {
+      if (type == "roll" && state.rolled) { // Cannot roll dice again if already rolled
         throw new Error(`Cannot roll dice again.`);
-      }
-      break;
-    case "double-proposed":
-      if (type != "accept" && type != "forfeit") {
-        throw new Error(`Command not allowed in current status`);
-      }
-      if (seat !== state.up) {
-        throw new Error("Not your turn");
       }
       break;
     case "finished":
       throw new Error(`Cannot issue commands once the game is finished.`);
       break;
-  }
-
-  // Specific validation for propose-double
-  if (type === "propose-double") {
-    if (state.stakes >= 64) {
-      throw new Error("Cannot double at stakes of 64 or higher");
-    }
-    if (state.holdsCube !== -1 && state.holdsCube !== seat) {
-      throw new Error("You do not control the cube");
-    }
   }
 
   const allValidMoves = g.moves(self, {seat, type});
@@ -420,12 +402,33 @@ export function execute(self, command) {
       return g.fold(self, _.assoc(command, "type", "committed"));
     }
     case 'propose-double': {
+      if (status !== "pending") {
+        throw new Error(`Command not allowed in current status`);
+      }
+      if (state.stakes >= 64) {
+        throw new Error("Cannot double at stakes of 64 or higher");
+      }
+      if (seat !== state.up || (state.holdsCube !== -1 && state.holdsCube !== seat)) {
+        throw new Error("You do not control the cube or it's not your turn");
+      }
       return g.fold(self, _.assoc(command, "type", "double-proposed"));
     }
     case 'accept': {
+      if (status !== "double-proposed") {
+        throw new Error(`Command not allowed in current status`);
+      }
+      if (seat !== state.up) {
+        throw new Error("Not your turn");
+      }
       return g.fold(self, _.assoc(command, "type", "accepted"));
     }
     case 'forfeit': {
+      if (status !== "double-proposed") {
+        throw new Error(`Command not allowed in current status`);
+      }
+      if (seat !== state.up) {
+        throw new Error("Not your turn");
+      }
       return g.fold(self, _.assoc(command, "type", "forfeited"));
     }
     default: {
