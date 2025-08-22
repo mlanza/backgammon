@@ -110,6 +110,15 @@ function committed(state) {
   };
 }
 
+function doubleProposed(state) {
+  const { up } = state;
+  return {
+    ...state,
+    status: "double-proposed",
+    up: opposition(up)
+  };
+}
+
 export function hasWon(state, seat) {
   return state.off[seat] === 15;
 }
@@ -365,6 +374,9 @@ export function execute(self, command) {
     }
     case 'commit': {
       return g.fold(self, _.assoc(command, "type", "committed"));
+    }
+    case 'propose-double': {
+      return g.fold(self, _.assoc(command, "type", "double-proposed"));
     }
     default: {
       throw new Error("Unknown command: " + command.type);
