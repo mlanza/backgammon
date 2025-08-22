@@ -119,6 +119,16 @@ function doubleProposed(state) {
   };
 }
 
+function accepted(state, details) {
+  const { seat } = details;
+  return {
+    ...state,
+    stakes: state.stakes * 2,
+    holdsCube: seat,
+    status: "started"
+  };
+}
+
 export function hasWon(state, seat) {
   return state.off[seat] === 15;
 }
@@ -384,6 +394,9 @@ export function execute(self, command) {
     case 'propose-double': {
       return g.fold(self, _.assoc(command, "type", "double-proposed"));
     }
+    case 'accept': {
+      return g.fold(self, _.assoc(command, "type", "accepted"));
+    }
     default: {
       throw new Error("Unknown command: " + command.type);
     }
@@ -402,6 +415,8 @@ function fold(self, event) {
       return g.fold(self, event, state => committed(state, event.details))
     case "double-proposed":
       return g.fold(self, event, state => doubleProposed(state, event.details))
+    case "accepted":
+      return g.fold(self, event, state => accepted(state, event.details))
     default:
       return self;
   }
