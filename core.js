@@ -32,7 +32,7 @@ export function init(raiseStakes) {
 			[0, 5],	[0, 0],	[0, 0],	[0, 0],	[3, 0],	[0, 0],
 			[5, 0],	[0, 0],	[0, 0],	[0, 0],	[0, 0],	[0, 2]
 		]
-	}, raiseStakes ? {holdsCube: null} : {});
+	}, raiseStakes ? {holdsCube: -1} : {});
 }
 
 function rolled(state, details) {
