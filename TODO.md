@@ -5,7 +5,7 @@ This plan outlines the steps to implement the doubling cube feature as specified
 - [x] **State:** Update `init()` in `core.js` to include `stakes: 1` and `holdsCube: -1`.
 
 ## Phase 1: Propose Double
-- [ ] **Available Moves:** Update `moves` to show `propose-double` as a valid move.
+- [x] **Available Moves:** Update `moves` to show `propose-double` as a valid move.
 - [ ] **Propose Double:** Implement the `propose-double` command in `execute` and the corresponding `double-proposed` event in `fold`.
 
 ## Phase 2: Accept

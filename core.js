@@ -170,7 +170,7 @@ export function canBearOff(state, seat) {
 
 export function moves(self, options = {}) {
   const state = _.deref(self);
-  const { bar, rolled, points, up, dice } = state;
+  const { bar, rolled, points, up, dice, stakes, holdsCube } = state;
 
   const playersToConsider = typeof options.seat === 'number' ? [options.seat] : options.seat || [up];
 
@@ -185,7 +185,9 @@ export function moves(self, options = {}) {
     }
 
     if (!rolled) {
-      return [{type: "roll", seat}];
+      const canDouble = _.has(state, "holdsCube") && stakes < 64 && (holdsCube === -1 || holdsCube === seat);
+      const doubleMove = canDouble ? [{type: "propose-double", seat}] : [];
+      return _.concat([{type: "roll", seat}], doubleMove);
     }
 
     const barMoves = onBar ? _.mapcat(function(die) {
