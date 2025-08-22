@@ -203,7 +203,7 @@ export function moves(self, options = {}) {
 
   const playersToConsider = typeof options.seat === 'number' ? [options.seat] : options.seat || [up];
 
-  const allGeneratedMoves = _.mapcat(function(seat) { // Iterate over each seat
+  const allMoves = _.mapcat(function(seat) { // Iterate over each seat
     const opponent = opposition(seat);
     const direction = directed(seat);
     const onBar = bar[seat] > 0;
@@ -285,10 +285,10 @@ export function moves(self, options = {}) {
   // Filter by type if options.type is provided
   if (options.type) {
     const typesToFilter = typeof options.type === 'string' ? [options.type] : options.type;
-    return _.filtera(move => _.includes(typesToFilter, move.type), allGeneratedMoves);
+    return _.filtera(move => _.includes(typesToFilter, move.type), allMoves);
   }
 
-  return allGeneratedMoves;
+  return allMoves;
 }
 
 function compact(self){
