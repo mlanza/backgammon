@@ -17,5 +17,5 @@ This plan outlines the steps to implement the doubling cube feature as specified
 - [x] **Forfeit:** Implement the `forfeit` command in `execute` and the corresponding `forfeited` event in `fold`.
 
 ## Phase 4: Validation and Game Outcome
-- [ ] **Validation:** Add validation logic to `execute` to enforce all preconditions and rules for the new commands as described in the PRD.
+- [x] **Validation:** Add validation logic to `execute` to enforce all preconditions and rules for the new commands as described in the PRD.
 - [ ] **Game Outcome:** Ensure that a `forfeit` correctly ends the game and assigns a winner.

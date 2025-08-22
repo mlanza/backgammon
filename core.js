@@ -326,18 +326,36 @@ export function execute(self, command) {
 
   switch (status) {
     case "pending":
-      if (type != "roll") { // Assuming 'roll' is the start command
-        throw new Error(`Cannot issue '${type}' unless the game has started.`);
+      if (type != "roll" && type != "propose-double") {
+        throw new Error(`Command not allowed in current status`);
       }
       break;
     case "started":
-      if (type == "roll" && state.rolled) { // Cannot roll dice again if already rolled
+      if (type == "roll" && state.rolled) {
         throw new Error(`Cannot roll dice again.`);
+      }
+      break;
+    case "double-proposed":
+      if (type != "accept" && type != "forfeit") {
+        throw new Error(`Command not allowed in current status`);
+      }
+      if (seat !== state.up) {
+        throw new Error("Not your turn");
       }
       break;
     case "finished":
       throw new Error(`Cannot issue commands once the game is finished.`);
       break;
+  }
+
+  // Specific validation for propose-double
+  if (type === "propose-double") {
+    if (state.stakes >= 64) {
+      throw new Error("Cannot double at stakes of 64 or higher");
+    }
+    if (state.holdsCube !== -1 && state.holdsCube !== seat) {
+      throw new Error("You do not control the cube");
+    }
   }
 
   const allValidMoves = g.moves(self, {seat, type});
