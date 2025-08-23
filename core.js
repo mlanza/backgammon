@@ -119,18 +119,17 @@ function doubleProposed(state) {
   };
 }
 
-function accepted(state, details) {
-  const { seat } = details;
+function accepted(state, seat) {
   return {
     ...state,
     stakes: state.stakes * 2,
+    up: opposition(seat),
     holdsCube: seat,
     status: "started"
   };
 }
 
-function forfeited(state, details) {
-  const { seat } = details;
+function forfeited(state, seat) {
   const winner = opposition(seat);
   return {
     ...state,
@@ -402,7 +401,7 @@ export function execute(self, command) {
       return g.fold(self, _.assoc(command, "type", "committed"));
     }
     case 'propose-double': {
-      if (status !== "pending") {
+      if (status !== "started") {
         throw new Error(`Command not allowed in current status`);
       }
       if (state.stakes >= 64) {
@@ -450,9 +449,9 @@ function fold(self, event) {
     case "double-proposed":
       return g.fold(self, event, state => doubleProposed(state, event.details))
     case "accepted":
-      return g.fold(self, event, state => accepted(state, event.details))
+      return g.fold(self, event, state => accepted(state, event.seat))
     case "forfeited":
-      return g.fold(self, event, state => forfeited(state, event.details))
+      return g.fold(self, event, state => forfeited(state, event.seat))
     default:
       return self;
   }
