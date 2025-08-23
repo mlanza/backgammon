@@ -1,9 +1,15 @@
 {
   "tasks": {
     "msgedit": "deno run -A ./bin/msgedit.js -U7",
+    "reword-commit": "bash -lc 'sha=${1:-}; if [ -z \"$sha\" ]; then read -r sha; fi; [ -n \"$sha\" ] || exit 1; if git rev-list --max-parents=0 HEAD | grep -qx \"$sha\"; then echo \"Picked root commit; no parent to rebase.\"; exit 1; fi; git rebase -i \"${sha}^\"'",
+    "pick-reword": "bash -lc 'deno task pick-commit | deno task reword-commit'",
+    "pick-commit": "bash -lc 'git log --oneline --reverse | fzf --tac | cut -d\" \" -f1'",
+    "view-diff": "bash -lc 'sha=${1:-}; if [ -z \"$sha\" ]; then read -r sha; fi; [ -n \"$sha\" ] && git -c color.ui=always show \"$sha\" | less -R'",
+    "pick-diff": "bash -lc 'deno task pick-commit | deno task view-diff'",
     "dev": "deno run --watch main.ts",
     "vibe": "gemini --include-directories ../meeplitis",
     "serve": "deno run --allow-net --allow-sys --allow-read https://deno.land/std/http/file_server.ts . -p 8080"
+
   },
   "imports": {
     "@std/assert": "jsr:@std/assert@1"
