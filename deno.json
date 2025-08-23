@@ -1,5 +1,6 @@
 {
   "tasks": {
+    "msgedit": "deno run -A ./bin/msgedit.js -U7",
     "dev": "deno run --watch main.ts",
     "vibe": "gemini --include-directories ../meeplitis",
     "serve": "deno run --allow-net --allow-sys --allow-read https://deno.land/std/http/file_server.ts . -p 8080"
