@@ -1,13 +1,19 @@
 {
   "tasks": {
     "msgedit": "deno run -A ./bin/msgedit.js -U7",
+    // Given a SHA, lets you edit the commit message
     "reword-commit": "bash -lc 'sha=${1:-}; if [ -z \"$sha\" ]; then read -r sha; fi; [ -n \"$sha\" ] || exit 1; if git rev-list --max-parents=0 HEAD | grep -qx \"$sha\"; then echo \"Picked root commit; no parent to rebase.\"; exit 1; fi; git rebase -i \"${sha}^\"'",
+    // Picks a commit and lets you edit the message
     "pick-reword": "bash -lc 'deno task pick-commit | deno task reword-commit'",
+    // Picks a commit SHA using fzf
     "pick-commit": "bash -lc 'git log --pretty=format:\"%h %ad %s\" --date=short --reverse | fzf --tac | cut -d\" \" -f1'",
+    // Given a SHA, shows the diff for that commit
     "view-diff": "bash -lc 'sha=${1:-}; if [ -z \"$sha\" ]; then read -r sha; fi; [ -n \"$sha\" ] && git -c color.ui=always show \"$sha\" | less -R'",
+    // Picks a commit and shows its diff
     "pick-diff": "bash -lc 'deno task pick-commit | deno task view-diff'",
-    "dev": "deno run --watch main.ts",
+    // Vibe code with Gemini
     "vibe": "gemini --include-directories ../meeplitis",
+    // Serve the site for to access output in browser Dev Tools
     "serve": "deno run --allow-net --allow-sys --allow-read https://deno.land/std/http/file_server.ts . -p 8080"
   },
   "imports": {
