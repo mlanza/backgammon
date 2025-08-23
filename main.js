@@ -9,7 +9,7 @@ function exec($game, command) {
   $.swap($game, (g) => b.execute(g, command));
 }
 
-const moves = _.pipe(_.deref, (g) => b.moves(g.state), _.toArray, $.see("moves"));
+const moves = _.pipe(_.deref, b.moves, _.toArray, $.see("moves"));
 reg({$game, moves, b, exec});
 
 exec($game, {type: 'roll', seat: 0, details: {dice: [5, 6]}});
