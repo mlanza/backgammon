@@ -18,3 +18,8 @@ exec($game, {type: 'move', seat: 0, details: {from: 0, to: 6, die: 6}});
 exec($game, {type: 'commit', seat: 0});
 exec($game, {type: 'propose-double', seat: 1});
 exec($game, {type: 'accept', seat: 0});
+exec($game, {type: 'roll', seat: 1, details: {dice: [4, 3]}});
+exec($game, {type: 'move', seat: 1, details: {from: 5, to: 1, die: 4}});
+exec($game, {type: 'move', seat: 1, details: {from: 7, to: 4, die: 3}});
+exec($game, {type: 'commit', seat: 1});
+
