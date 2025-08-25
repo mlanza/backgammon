@@ -20,7 +20,7 @@ You are an AI assistant collaborating with an expert programmer on a backgammon 
 We are implementing the functional core (FC).  That means we are not even beginning to look at the UI at this point.
 
 ## Meeplitis Games
-We are implementing a board game, the architecture for which is found in `../meeplitis` and summarized in `MEEPLITIS.md` . Your job is to understand and use its architecture.  For more difficult tasks, feel free to study source there instead of just the summary.
+We are implementing a board game, the architecture for which is found in `../meeplitis` and summarized in `../docs/meeplitis.md` . Your job is to understand and use its architecture.  For more difficult tasks, feel free to study source there instead of just the summary.
 
 ## Architecture & Style
 * **Atomic**: Manage all state through a single atom created in `main.js`. Updates must go through swaps (Clojure-style). No ad-hoc mutation.
