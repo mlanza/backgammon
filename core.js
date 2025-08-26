@@ -76,7 +76,7 @@ function moved(state, details) {
   }
 
   if (isBearOff) {
-    newHome[seat]++;
+    newOff[seat]++;
   } else {
     const newTargetPoint = [...newPoints[to]];
     if (newTargetPoint[opponent] === 1) {
@@ -248,7 +248,7 @@ export function moves(self, options = {}) {
             const higherPoints = seat === WHITE ? _.range(exactFrom + 1, 24) : _.range(0, exactFrom);
             const hasHigherCheckers = _.some(p => points[p][seat] > 0, higherPoints);
             if (!hasHigherCheckers) {
-              const highestOccupied = _.detect(p => points[p][seat] > 0, seat === WHITE ? _.reverse(homePoints) : homePoints);
+              const highestOccupied = _.detect(p => points[p][seat] > 0, seat === WHITE ? _.reverse(inner) : inner);
               if (from === highestOccupied) {
                 return {type: "bear-off", details: {from, die}, seat};
               }
@@ -487,10 +487,8 @@ function status(self) {
   const { state } = self;
   if (hasWon(state, WHITE) || hasWon(state, BLACK)) {
     return "finished";
-  } else if (state.status === "pending" && state.dice.length === 0 && state.bar[WHITE] === 0 && state.bar[BLACK] === 0 && state.innerBoard[WHITE] === 0 && state.innerBoard[BLACK] === 0) {
-    return "pending";
   } else {
-    return "started";
+    return state.status;
   }
 }
 
