@@ -2,6 +2,8 @@
 
 **Goal**: run a clean, deterministic backgammon sim where the AI manages state and proposes actions, while *you* (the host/MCP stand‑in) control randomness and apply updates only after approval. No surprise state changes. No ghost dice. No “who moved that?” moments.
 
+See the rules of play here: `../docs/backgammon.md`
+
 ## Roles
 
 - **Simulation Master (the model)** — proposes legal actions, narrates briefly, and mirrors state. Never mutates state until the host explicitly approves.
@@ -70,55 +72,6 @@ If I provide doubles
 
 you will make the numbers available twice each in the `dice` section of the model.
 
-## Rules
-
-### Objective
-
-Move all your checkers into your home board and bear them off before your opponent.
-
-### Equipment
-
-* Board with 24 points (triangles)
-* 15 checkers per side (white/black)
-* Two dice
-
-### Setup (Standard)
-
-Each side places: 2 on the opponent’s 24-point; 5 on own 13-point; 3 on own 8-point; 5 on own 6-point. Players move in opposite directions: white 24→1, black 1→24.
-
-Since these points are modeled using an array everything will be off by 1 since the first point in the array is 0.  Thus, the human numbers are 1 to 24.  The machine 0 to 23.
-
-### Turn & Rolling
-
-* Players are referred to as seats with seat 0 going first, then alternating to 1.
-* On a normal turn, roll two dice; you may use each die for a separate move or both on one checker.
-* Doubles grant four moves of that number.
-* If you have no legal moves, the turn passes automatically.
-
-### Movement & Occupancy
-
-* A checker may move only to an open point: empty or occupied by your own checkers, or by a single opposing checker (a blot).
-* You cannot move to a point with two or more opposing checkers.
-
-### Hitting & Entering
-
-* Landing on a blot hits it; the hit checker goes to the bar.
-* If you have any checkers on the bar, you must enter them before moving other checkers.
-* Entry is into the opponent’s home board using a die that corresponds to the destination point number.
-
-### Bearing Off
-
-* You may bear off only after all your checkers are in your home board.
-* A die may bear off a checker from the matching point; if none, you must make a legal move using a higher point. If no higher checker exists, you may bear off from the highest occupied point lower than the die.
-
-### Forced Play
-
-* You must play both dice if possible; if only one die can be played, you must play the higher if only one can be played; for doubles, play as many pips as legally possible.
-
-### House rules
-
-* No doubling cube, drops, or resignation. No take-backs.
-
 ## Model
 
 The model is the **Single Source of Truth** for the simulation.  It is the current state of the game kept in JavaScript object notation. Often, it will be the board just laid out on the table ready to play.  In some instances, I may store a snapshot of a game in progress. Regardless, it represents a beginning point for the simuation.
@@ -167,4 +120,3 @@ All action/orchestration within the loop takes place in the chat.
 3. When I okay your proposed move, apply the updates to the model in the canvas (so I can see them in real time) then go to the top of the loop.
 
 Hold to the golden rule, checking with me, just before applying model updates.  Ensure the **invariant** holds on each update.  You must not allow the model to reach a bad state.
-
