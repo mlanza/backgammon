@@ -129,12 +129,11 @@ function accepted(state, seat) {
   };
 }
 
-function forfeited(state, seat) {
-  const winner = opposition(seat);
+function conceded(state, seat) {
   return {
     ...state,
-    status: "finished",
-    winner: winner
+    conceded: seat,
+    status: "finished"
   };
 }
 
@@ -214,7 +213,7 @@ export function moves(self, options = {}) {
 
     if (state.status === "double-proposed") {
       const canRespond = seat === up;
-      const responseMoves = canRespond ? [{type: "accept", seat}, {type: "forfeit", seat}] : [];
+      const responseMoves = canRespond ? [{type: "accept", seat}, {type: "concede", seat}] : [];
       return responseMoves;
     }
 
@@ -421,14 +420,14 @@ export function execute(self, command) {
       }
       return g.fold(self, _.assoc(command, "type", "accepted"));
     }
-    case 'forfeit': {
+    case 'concede': {
       if (status !== "double-proposed") {
         throw new Error(`Command not allowed in current status`);
       }
       if (seat !== state.up) {
         throw new Error("Not your turn");
       }
-      return g.fold(self, _.assoc(command, "type", "forfeited"));
+      return g.fold(self, _.assoc(command, "type", "conceded"));
     }
     default: {
       throw new Error("Unknown command: " + command.type);
@@ -450,8 +449,8 @@ function fold(self, event) {
       return g.fold(self, event, state => doubleProposed(state, event.details))
     case "accepted":
       return g.fold(self, event, state => accepted(state, event.seat))
-    case "forfeited":
-      return g.fold(self, event, state => forfeited(state, event.seat))
+    case "conceded":
+      return g.fold(self, event, state => conceded(state, event.seat))
     default:
       return self;
   }
@@ -468,19 +467,36 @@ function up(state) {
 const may = up;
 
 function metrics(state, seat) {
-  return {};
+  const conceded = state.conceded == seat;
+  const off = state.off[seat];
+  return {off, conceded};
 }
 
-function comparator(s1, s2) {
-  return 0;
+function comparator(self) {
+  return function(a, b) {
+    // conceded: false beats true
+    if (a.conceded !== b.conceded) {
+      return a.conceded ? 1 : -1;
+    }
+
+    // higher 'off' wins
+    if (a.off !== b.off) {
+      return b.off - a.off;
+    }
+
+    // tie
+    return 0;
+  };
 }
 
-function textualizer(event) {
-  return "";
+function textualizer(self){
+  return function({off, conceded}){
+    return conceded ? `Conceded` : `${off} off`;
+  }
 }
 
-function undoable(){
-  return true;
+function undoable(self, {type}){
+  return _.includes(["rolled", "committed", "double-proposed", "accepted", "conceded"], type);
 }
 
 function status(self) {
