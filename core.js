@@ -137,8 +137,9 @@ function conceded(state, seat) {
   };
 }
 
-export function hasWon(state, seat) {
-  return state.off[seat] === 15;
+export function won(state, seat) {
+  const {off, conceded} = state;
+  return off[seat] === 15 || (conceded && conceded !== seat);
 }
 
 export function validate({state}) {
@@ -207,7 +208,7 @@ export function moves(self, options = {}) {
     const onBar = bar[seat] > 0;
     const pending = rolled && _.count(dice) > 0;
 
-    if (hasWon(state, WHITE) || hasWon(state, BLACK)) {
+    if (won(state, WHITE) || won(state, BLACK)) {
       return [];
     }
 
@@ -501,7 +502,7 @@ function undoable(self, {type}){
 
 function status(self) {
   const { state } = self;
-  if (hasWon(state, WHITE) || hasWon(state, BLACK)) {
+  if (won(state, WHITE) || won(state, BLACK)) {
     return "finished";
   } else {
     return state.status;
