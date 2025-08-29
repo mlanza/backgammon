@@ -1,7 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
 <ns0:svg xmlns:ns0="http://www.w3.org/2000/svg" width="1200" height="972" viewBox="0 0 1200 972" role="img" aria-labelledby="title desc">
-  <ns0:rect x="565.00" y="38.00" width="70.00" height="895.90" fill="#a07146" />
-  <ns0:rect x="10" y="10" width="1180" height="951.90" rx="20" ry="20" fill="#a07146" />
   <ns0:title id="title">Backgammon Board (Reusable Oval Pattern + New Dots Pattern on Felt)</ns0:title>
   <ns0:desc id="desc">Points use the oval chain pattern; charcoal playfields use a new, sparse dot pattern aligned to the same grid with the same offsets. Dots are small white circles with opacity and never touch.</ns0:desc>
   <ns0:defs>
@@ -30,27 +28,11 @@
     <ns0:pattern id="diagLines" patternUnits="userSpaceOnUse" width="4" height="4" patternTransform="rotate(45)">
       <ns0:line x1="0" y1="0" x2="0" y2="8" stroke="white" stroke-opacity="0.084375" stroke-width="2" />
     </ns0:pattern>
-    <ns0:filter id="paperTexture" x="0%" y="0%" width="100%" height="100%">
-      <ns0:feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch" result="noise" />
-      <ns0:feColorMatrix type="matrix" values="0.33 0.33 0.33 0 0  0.33 0.33 0.33 0 0  0.33 0.33 0.33 0 0  0 0 0 1 0" in="noise" result="grayNoise" />
-      <ns0:feBlend mode="multiply" in="SourceGraphic" in2="grayNoise" result="textured" />
-    </ns0:filter>
-    <ns0:mask id="frameMask" maskUnits="userSpaceOnUse">
-      <ns0:rect x="10" y="10" width="1180" height="951.90" fill="white" rx="20" ry="20" />
-      <ns0:rect x="38.00" y="38.00" width="527.00" height="895.90" fill="black" rx="10" ry="10" />
-    </ns0:mask>
-    <ns0:clipPath id="frameClip" clipPathUnits="userSpaceOnUse">
-      <ns0:rect x="10" y="10" width="1180" height="951.90" rx="20" ry="20" />
-      <ns0:rect x="565.00" y="38.00" width="70.00" height="895.90" />
-    </ns0:clipPath>
-    <ns0:mask id="exactFrameMask" maskUnits="userSpaceOnUse" x="0%" y="0%" width="100%" height="100%">
-      <ns0:rect x="10" y="10" width="1180" height="951.90" rx="20" ry="20" fill="white" />
-      <ns0:rect x="565.00" y="38.00" width="70.00" height="895.90" fill="white" />
-    </ns0:mask>
   </ns0:defs>
+  <ns0:rect x="565.00" y="38.00" width="70.00" height="895.90" fill="#a07146" />
+  <ns0:rect x="10" y="10" width="1180" height="951.90" rx="20" ry="20" fill="#a07146" />
   <ns0:rect id="frameTextureOverlay" x="0" y="0" width="1200" height="972" fill="url(#diagLines)" pointer-events="none" mask="url(#exactFrameMask)" />
-
-  <ns0:rect x="38.00" y="38.00" width="527.00" height="895.90" rx="10" ry="10" fill="#333538" filter="url(#paperTexture)" />
+  <ns0:rect x="38.00" y="38.00" width="527.00" height="895.90" rx="10" ry="10" fill="#333538" />
   <ns0:rect x="635.00" y="38.00" width="527.00" height="895.90" rx="10" ry="10" fill="#333538" />
   <ns0:rect x="38.00" y="38.00" width="527.00" height="895.90" rx="10" ry="10" fill="url(#dotColsBoard)" />
   <ns0:rect x="635.00" y="38.00" width="527.00" height="895.90" rx="10" ry="10" fill="url(#dotColsBoard)" />
